@@ -65,20 +65,20 @@
         describe('#on()', function() {
             it('should register a callback function for "left", "middle", and "right" button input', function() {
                 var mouse = new Mouse(),
-                    events = 0;
+                    count = 0;
                 mouse.on( 'left', function() {
-                    events++;
+                    count++;
                 }, 'press' );
                 mouse.on( 'middle', function() {
-                    events++;
+                    count++;
                 }, 'press' );
                 mouse.on( 'right', function() {
-                    events++;
+                    count++;
                 }, 'press' );
                 document.trigger( 'mousedown', { button: 0 } );
                 document.trigger( 'mousedown', { button: 1 } );
                 document.trigger( 'mousedown', { button: 2 } );
-                assert( events === 3 );
+                assert( count === 3 );
             });
             it('should register a callback function for "move" input', function() {
                 var mouse = new Mouse(),
@@ -91,80 +91,80 @@
             });
             it('should accept an array of inputs', function() {
                 var mouse = new Mouse(),
-                    events = 0;
+                    count = 0;
                 mouse.on( ['left', 'move'], function() {
-                    events++;
+                    count++;
                 });
                 document.trigger( 'mousedown', { button: 0 } );
                 document.trigger( 'mousemove', {} );
-                assert( events === 2 );
+                assert( count === 2 );
             });
             it('should default button event type to "press"', function() {
                 var mouse = new Mouse(),
-                    pressed = false;
+                    count = 0;
                 mouse.on( 'left', function() {
-                    pressed = true;
+                    count++;
                 });
                 document.trigger( 'mousedown', { button: 0 } );
-                assert( pressed );
+                assert( count === 1 );
             });
             it('should accept a single callback function as second argument', function() {
                 var mouse = new Mouse(),
-                    pressed = false;
+                    count = 0;
                 mouse.on( 'left', function() {
-                    pressed = true;
+                    count++;
                 });
                 document.trigger( 'mousedown', { button: 0 } );
-                assert( pressed );
+                assert( count === 1 );
             });
             it('should accept a string event type as third argument', function() {
                 var mouse = new Mouse(),
-                    pressed = false,
-                    released = false;
+                    countA = 0,
+                    countB = 0;
                 mouse.on( 'left', function() {
-                    pressed = true;
+                    countA++;
                 }, 'press' );
                 mouse.on( 'left', function() {
-                    released = true;
+                    countB++;
                 }, 'release' );
                 document.trigger( 'mousedown', { button: 0 } );
                 document.trigger( 'mouseup', { button: 0 } );
-                assert( pressed && released );
+                assert( countA === 1 && countB === 1 );
             });
             it('should accept an array of event types as third argument', function() {
                 var mouse = new Mouse(),
-                    events = 0;
-                    mouse.on( 'left', function() {
-                    events++;
+                    count = 0;
+                mouse.on( 'left', function() {
+                        count++;
                 },  ['press', 'release'] );
                 document.trigger( 'mousedown', { button: 0 } );
                 document.trigger( 'mouseup', { button: 0 } );
-                assert( events === 2 );
+                assert( count === 2 );
             });
             it('should ignore the registration if no key id is provided', function() {
                 var mouse = new Mouse(),
-                    pressed = false;
+                    count = 0;
                 TestUtil.muteConsole();
                 mouse.on();
                 mouse.on( function() {
-                    pressed = true;
+                    count++;
                 });
                 mouse.on( 'press' );
                 document.trigger( 'mousedown', { button: 0 } );
                 document.trigger( 'mouseup', { button: 0 } );
-                assert( !pressed );
+                assert( count === 0 );
                 TestUtil.unmuteConsole();
             });
             it('should ignore the registration if no callback function is provided', function() {
                 var mouse = new Mouse(),
-                    pressed = false;
+                    count = 0;
                 TestUtil.muteConsole();
                 mouse.on( 'left' );
                 mouse.on( 'left', 'press' );
                 mouse.on( 'press' );
                 document.trigger( 'mousedown', { button: 0 } );
                 document.trigger( 'mouseup', { button: 0 } );
-                assert( !pressed );
+                assert( count === 0 );
                 TestUtil.unmuteConsole();
             });
             it('should return the object for chaining', function() {
@@ -187,59 +187,59 @@
         describe('#off()', function() {
             it('should remove a registered callback function for the provided input', function() {
                 var mouse = new Mouse(),
-                    pressed = false,
+                    count = 0,
                     callback = function() {
-                        pressed = true;
+                        count++;
                     };
                 mouse.on( 'left', callback );
                 mouse.off( 'left', callback );
                 document.trigger( 'mousedown', { button: 0 } );
-                assert( !pressed );
+                assert( count === 0 );
             });
             it('should accept a single input', function() {
                 var mouse = new Mouse(),
-                    pressed = false,
+                    count = 0,
                     callback = function() {
-                        pressed = true;
+                        count++;
                     };
                 mouse.on( 'left', callback );
                 mouse.off( 'left', callback );
                 document.trigger( 'mousedown', { button: 0 } );
-                assert( !pressed );
+                assert( count === 0 );
             });
             it('should accept an array of input', function() {
                 var mouse = new Mouse(),
-                    pressed = 0,
+                    count = 0,
                     callback = function() {
-                        pressed++;
+                        count++;
                     };
                 mouse.on( ['left', 'middle', 'move'], callback );
                 mouse.off( ['left', 'middle', 'move'], callback );
                 document.trigger( 'mousedown', { button: 0 } );
                 document.trigger( 'mousedown', { button: 1 } );
                 document.trigger( 'mousemove', {} );
-                assert( pressed === 0 );
+                assert( count === 0 );
             });
             it('should default event type to "press"', function() {
                 var mouse = new Mouse(),
-                    pressed = false,
+                    count = 0,
                     callback = function() {
-                        pressed = true;
+                        count++;
                     };
                 mouse.on( 'left', callback );
                 mouse.off( 'left', callback );
                 document.trigger( 'mousedown', { button: 0 } );
-                assert( !pressed );
+                assert( count === 0 );
             });
             it('should accept a string event type as second argument', function() {
                 var mouse = new Mouse(),
-                    pressed = false,
-                    released = false,
+                    countA = 0,
+                    countB = 0,
                     pressCallback = function() {
-                        pressed = true;
+                        countA++;
                     },
                     releaseCallback = function() {
-                        released = true;
+                        countB++;
                     };
                 mouse.on( 'left', pressCallback, 'press' );
                 mouse.on( 'left', releaseCallback, 'release' );
@@ -247,36 +247,36 @@
                 mouse.off( 'left', releaseCallback, 'release' );
                 document.trigger( 'mousedown', { button: 0 } );
                 document.trigger( 'mouseup', { button: 0 } );
-                assert( !pressed && !released );
+                assert( countA === 0 && countB === 0 );
             });
             it('should accept an array of event types as second argument', function() {
                 var mouse = new Mouse(),
-                    events = 0,
+                    count = 0,
                     callback = function() {
-                        events++;
+                        count++;
                     };
                 mouse.on( 'left', callback, ['press', 'release'] );
                 mouse.off( 'left', callback, ['press', 'release'] );
                 document.trigger( 'mousedown', { button: 0 } );
                 document.trigger( 'mouseup', { button: 0 } );
-                assert( events === 0 );
+                assert( count === 0 );
             });
             it('should accept a single callback function as last argument', function() {
                 var mouse = new Mouse(),
-                    pressed = false,
+                    count = 0,
                     callback = function() {
-                        pressed = true;
+                        count++;
                     };
                 mouse.on( 'left', callback );
                 mouse.off( 'left', callback );
                 document.trigger( 'mousedown', { button: 0 } );
-                assert( !pressed );
+                assert( count === 0 );
             });
             it('should ignore the registration if no key id is provided', function() {
                 var mouse = new Mouse(),
-                    pressed = false,
+                    count = 0,
                     callback = function() {
-                        pressed = true;
+                        count++;
                     };
                 TestUtil.muteConsole();
                 mouse.on( 'left', callback );
@@ -285,14 +285,14 @@
                 mouse.off( callback, 'press' );
                 document.trigger( 'mousedown', { button: 0 } );
                 document.trigger( 'mouseup', { button: 0 } );
-                assert( pressed );
+                assert( count === 1 );
                 TestUtil.unmuteConsole();
             });
             it('should ignore the registration if no callback function is provided', function() {
                 var mouse = new Mouse(),
-                    pressed = false,
+                    count = 0,
                     callback = function() {
-                        pressed = true;
+                        count++;
                     };
                 TestUtil.muteConsole();
                 mouse.on( 'left', callback );
@@ -301,7 +301,7 @@
                 mouse.off( 'press' );
                 document.trigger( 'mousedown', { button: 0 } );
                 document.trigger( 'mouseup', { button: 0 } );
-                assert( pressed );
+                assert( count === 1 );
                 TestUtil.unmuteConsole();
             });
             it('should ignore the command if the callback is not registered', function() {

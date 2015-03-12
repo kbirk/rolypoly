@@ -15,15 +15,27 @@
                         document.listeners[ eventType ].push( callback );
                     },
                     trigger: function( eventType, event ) {
-                        var listeners = document.listeners[ eventType ],
-                            i;
-                        if ( listeners ) {
-                            for ( i=0; i<listeners.length; i++ ) {
-                                listeners[i]( event );
+                        event.type = eventType;
+                        event.which = event.keyCode;
+                        if ( document.listeners ) {
+                            var listeners = document.listeners[ eventType ],
+                                i;
+                            if ( listeners ) {
+                                for ( i=0; i<listeners.length; i++ ) {
+                                    listeners[i]( event );
+                                }
                             }
+                        } else {
+                            console.log( "no listener for " + eventType );
                         }
                     }
                 };
+            }
+        },
+
+        clearDocument: function() {
+            if ( _document ) {
+                global.document.listeners = {};
             }
         },
 

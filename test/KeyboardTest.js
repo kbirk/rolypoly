@@ -27,35 +27,35 @@
 
         it('should register callbacks for single key press events', function() {
             var keyboard = new Keyboard(),
-                pressed = false;
+                count = 0;
             keyboard.on( 'a', function() {
-                pressed = true;
+                count++;
             }, 'press' );
             document.trigger( 'keydown', { keyCode: 65 } );
-            assert( pressed );
+            assert( count === 1 );
         });
 
         it('should register callbacks for single key release events', function() {
             var keyboard = new Keyboard(),
-                pressed = false;
+                count = 0;
             keyboard.on( 'a', function() {
-                pressed = true;
+                count++;
             }, 'release' );
             document.trigger( 'keydown', { keyCode: 65 } );
             document.trigger( 'keyup', { keyCode: 65 } );
-            assert( pressed );
+            assert( count === 1 );
         });
 
         it('should not process a "release" event unless it has processed a preceeding "press" event', function() {
             var keyboard = new Keyboard(),
-                events = 0;
+                count = 0;
             keyboard.on( 'a', function() {
-                events++;
+                count++;
             }, 'release' );
             document.trigger( 'keyup', { keyCode: 65 } );
             document.trigger( 'keydown', { keyCode: 65 } );
             document.trigger( 'keyup', { keyCode: 65 } );
-            assert( events === 1 );
+            assert( count === 1 );
         });
 
         it('should accept shifted key states automatically', function() {
@@ -73,23 +73,38 @@
             assert( count === 3 );
         });
 
+        it('should ignore non-shifted key states when shift is down', function() {
+            var keyboard = new Keyboard(),
+                count = 0;
+            keyboard.on( '!', function() {
+                count++;
+            }, 'press' );
+            keyboard.on( '2', function() {
+                count++;
+            }, 'press' );
+            document.trigger( 'keydown', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 49 } );
+            document.trigger( 'keydown', { keyCode: 50 } );
+            assert( count === 1 );
+        });
+
         it('should register callbacks for simultaneous key combination press events', function() {
             var keyboard = new Keyboard(),
-                pressed = false;
+                count = 0;
             keyboard.on( 'a+b+c', function() {
-                pressed = true;
+                count++;
             }, 'press' );
             document.trigger( 'keydown', { keyCode: 65 } );
             document.trigger( 'keydown', { keyCode: 66 } );
             document.trigger( 'keydown', { keyCode: 67 } );
-            assert( pressed );
+            assert( count === 1 );
         });
 
         it('should register callbacks for simultaneous key combination release events', function() {
             var keyboard = new Keyboard(),
-                pressed = false;
+                count = 0;
             keyboard.on( 'a+b+c', function() {
-                pressed = true;
+                count++;
             }, 'press' );
             document.trigger( 'keydown', { keyCode: 65 } );
             document.trigger( 'keydown', { keyCode: 66 } );
@@ -97,14 +112,27 @@
             document.trigger( 'keyup', { keyCode: 65 } );
             document.trigger( 'keyup', { keyCode: 66 } );
             document.trigger( 'keyup', { keyCode: 67 } );
-            assert( pressed );
+            assert( count === 1 );
         });
 
-        it('should ingore simultaneous key combination release events if all keys have not been pressed simultaneously', function() {
+        it('should support shifted keys in simultaneous key combination events', function() {
             var keyboard = new Keyboard(),
-                pressed = false;
+                count = 0;
+            keyboard.on( 'a+b+!', function() {
+                count++;
+            }, 'press' );
+            document.trigger( 'keydown', { keyCode: 65 } );
+            document.trigger( 'keydown', { keyCode: 66 } );
+            document.trigger( 'keydown', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 49 } );
+            assert( count === 1 );
+        });
+
+        it('should ingore simultaneous key combination release events if all keys have not been count simultaneously', function() {
+            var keyboard = new Keyboard(),
+                count = 0;
             keyboard.on( 'a+b+c', function() {
-                pressed = true;
+                count++;
             }, 'press' );
             document.trigger( 'keydown', { keyCode: 65 } );
             document.trigger( 'keydown', { keyCode: 66 } );
@@ -112,26 +140,26 @@
             document.trigger( 'keydown', { keyCode: 67 } );
             document.trigger( 'keyup', { keyCode: 66 } );
             document.trigger( 'keyup', { keyCode: 67 } );
-            assert( !pressed );
+            assert( count === 0 );
         });
 
         it('should register callbacks for sequential key press events', function() {
             var keyboard = new Keyboard(),
-                pressed = false;
+                count = 0;
             keyboard.on( 'a b c', function() {
-                pressed = true;
+                count++;
             }, 'press' );
             document.trigger( 'keydown', { keyCode: 65 } );
             document.trigger( 'keydown', { keyCode: 66 } );
             document.trigger( 'keydown', { keyCode: 67 } );
-            assert( pressed );
+            assert( count === 1 );
         });
 
         it('should register callbacks for sequential key release events', function() {
             var keyboard = new Keyboard(),
-                pressed = false;
+                count = 0;
             keyboard.on( 'a b c', function() {
-                pressed = true;
+                count++;
             }, 'release' );
             document.trigger( 'keydown', { keyCode: 65 } );
             document.trigger( 'keydown', { keyCode: 66 } );
@@ -139,7 +167,100 @@
             document.trigger( 'keyup', { keyCode: 65 } );
             document.trigger( 'keyup', { keyCode: 66 } );
             document.trigger( 'keyup', { keyCode: 67 } );
-            assert( pressed );
+            assert( count === 1 );
+        });
+
+        it('should support shifted keys in sequential key press events', function() {
+            var keyboard = new Keyboard(),
+                count = 0;
+            keyboard.on( 'a ! @ a !', function() {
+                count++;
+            }, 'press' );
+            document.trigger( 'keydown', { keyCode: 65 } );
+            document.trigger( 'keydown', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 49 } );
+            document.trigger( 'keydown', { keyCode: 50 } );
+            document.trigger( 'keyup', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 65 } );
+            document.trigger( 'keydown', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 49 } );
+            assert( count === 1 );
+        });
+
+        it('should support shifted keys in sequential key release events', function() {
+            var keyboard = new Keyboard(),
+                count = 0;
+            keyboard.on( 'a ! @ a !', function() {
+                count++;
+            }, 'release' );
+            document.trigger( 'keydown', { keyCode: 65 } );
+            document.trigger( 'keyup', { keyCode: 65 } );
+            document.trigger( 'keydown', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 49 } );
+            document.trigger( 'keyup', { keyCode: 49 } );
+            document.trigger( 'keydown', { keyCode: 50 } );
+            document.trigger( 'keyup', { keyCode: 50 } );
+            document.trigger( 'keyup', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 65 } );
+            document.trigger( 'keyup', { keyCode: 65 } );
+            document.trigger( 'keydown', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 49 } );
+            document.trigger( 'keyup', { keyCode: 49 } );
+            assert( count === 1 );
+        });
+
+        it('should support the "shift" key in sequential key press events', function() {
+            var keyboard = new Keyboard(),
+                count = 0;
+            keyboard.on( 'shift ! shift a', function() {
+                count++;
+            }, 'press' );
+            // shortcut sequence
+            document.trigger( 'keydown', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 49 } );
+            document.trigger( 'keyup', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 16 } );
+            document.trigger( 'keyup', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 65 } );
+            // full sequence
+            document.trigger( 'keydown', { keyCode: 16 } );
+            document.trigger( 'keyup', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 49 } );
+            document.trigger( 'keyup', { keyCode: 16 } ); // optional
+            document.trigger( 'keydown', { keyCode: 16 } ); // optional
+            document.trigger( 'keyup', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 65 } );
+            assert( count === 2 );
+        });
+
+        it('should support the "shift" key in sequential key release events', function() {
+            var keyboard = new Keyboard(),
+                count = 0;
+            keyboard.on( 'shift ! shift a', function() {
+                count++;
+            }, 'release' );
+            // shortcut sequence
+            document.trigger( 'keydown', { keyCode: 16 } );
+            document.trigger( 'keyup', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 49 } );
+            document.trigger( 'keyup', { keyCode: 49 } );
+            document.trigger( 'keyup', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 65 } );
+            document.trigger( 'keyup', { keyCode: 65 } );
+            // full sequence
+            document.trigger( 'keydown', { keyCode: 16 } );
+            document.trigger( 'keyup', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 49 } );
+            document.trigger( 'keyup', { keyCode: 49 } );
+            document.trigger( 'keyup', { keyCode: 16 } ); // optional
+            document.trigger( 'keydown', { keyCode: 16 } ); // optional
+            document.trigger( 'keyup', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 65 } );
+            document.trigger( 'keyup', { keyCode: 65 } );
+            assert( count === 2 );
         });
 
         it('should ignore sequential key events if they occur too far apart in time', function( done ) {
@@ -157,121 +278,121 @@
         describe('#on()', function() {
             it('should register a callback function for the provided input', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false;
+                    count = 0;
                 keyboard.on( 'a', function() {
-                    pressed = true;
+                    count++;
                 });
                 document.trigger( 'keydown', { keyCode: 65 } );
-                assert( pressed );
+                assert( count === 1 );
             });
             it('should accept a single input', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false;
+                    count = 0;
                 keyboard.on( 'a', function() {
-                    pressed = true;
+                    count++;
                 });
                 document.trigger( 'keydown', { keyCode: 65 } );
-                assert( pressed );
+                assert( count === 1 );
             });
             it('should accept an array of input', function() {
                 var keyboard = new Keyboard(),
-                    pressed = 0;
+                    count = 0;
                 keyboard.on( ['a', 'b', 'c'], function() {
-                    pressed++;
+                    count++;
                 });
                 document.trigger( 'keydown', { keyCode: 65 } );
                 document.trigger( 'keydown', { keyCode: 66 } );
                 document.trigger( 'keydown', { keyCode: 67 } );
-                assert( pressed === 3 );
+                assert( count === 3 );
             });
             it('should accept a input sequences', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false;
+                    count = 0;
                 keyboard.on( 'a b c', function() {
-                    pressed = true;
+                    count++;
                 });
                 document.trigger( 'keydown', { keyCode: 65 } );
                 document.trigger( 'keydown', { keyCode: 66 } );
                 document.trigger( 'keydown', { keyCode: 67 } );
-                assert( pressed );
+                assert( count === 1 );
             });
             it('should accept a input combinations', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false;
+                    count = 0;
                 keyboard.on( 'a+b+c', function() {
-                    pressed = true;
+                    count++;
                 });
                 document.trigger( 'keydown', { keyCode: 65 } );
                 document.trigger( 'keydown', { keyCode: 66 } );
                 document.trigger( 'keydown', { keyCode: 67 } );
-                assert( pressed );
+                assert( count === 1 );
             });
             it('should default event type to "press"', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false;
+                    count = 0;
                 keyboard.on( 'a', function() {
-                    pressed = true;
+                    count++;
                 });
                 document.trigger( 'keydown', { keyCode: 65 } );
-                assert( pressed );
+                assert( count === 1 );
             });
             it('should accept a single callback function as second argument', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false;
+                    count = 0;
                 keyboard.on( 'a', function() {
-                    pressed = true;
+                    count++;
                 });
                 document.trigger( 'keydown', { keyCode: 65 } );
-                assert( pressed );
+                assert( count === 1 );
             });
             it('should accept a string event type as third argument', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false,
+                    count = 0,
                     released = false;
                 keyboard.on( 'a', function() {
-                    pressed = true;
+                    count++;
                 }, 'press' );
                 keyboard.on( 'a', function() {
                     released = true;
                 }, 'release' );
                 document.trigger( 'keydown', { keyCode: 65 } );
                 document.trigger( 'keyup', { keyCode: 65 } );
-                assert( pressed && released );
+                assert( count && released );
             });
             it('should accept an array of event types as third argument', function() {
                 var keyboard = new Keyboard(),
-                    events = 0;
+                    count = 0;
                 keyboard.on( 'a', function() {
-                    events++;
+                    count++;
                 },  ['press', 'release'] );
                 document.trigger( 'keydown', { keyCode: 65 } );
                 document.trigger( 'keyup', { keyCode: 65 } );
-                assert( events === 2 );
+                assert( count === 2 );
             });
             it('should ignore the registration if no key id is provided', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false;
+                    count = 0;
                 TestUtil.muteConsole();
                 keyboard.on();
                 keyboard.on( function() {
-                    pressed = true;
+                    count++;
                 });
                 keyboard.on( 'press' );
                 document.trigger( 'keydown', { keyCode: 65 } );
                 document.trigger( 'keyup', { keyCode: 65 } );
-                assert( !pressed );
+                assert( count === 0 );
                 TestUtil.unmuteConsole();
             });
             it('should ignore the registration if no callback function is provided', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false;
+                    count = 0;
                 TestUtil.muteConsole();
                 keyboard.on( 'a' );
                 keyboard.on( 'a', 'press' );
                 keyboard.on( 'press' );
                 document.trigger( 'keydown', { keyCode: 65 } );
                 document.trigger( 'keyup', { keyCode: 65 } );
-                assert( !pressed );
+                assert( count === 0 );
                 TestUtil.unmuteConsole();
             });
             it('should return the object for chaining on success', function() {
@@ -293,93 +414,93 @@
         describe('#off()', function() {
             it('should remove a registered callback function for the provided input', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false,
+                    count = 0,
                     callback = function() {
-                        pressed = true;
+                        count++;
                     };
                 keyboard.on( 'a', callback );
                 keyboard.off( 'a', callback );
                 document.trigger( 'keydown', { keyCode: 65 } );
-                assert( !pressed );
+                assert( count === 0 );
             });
             it('should accept a single input', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false,
+                    count = 0,
                     callback = function() {
-                        pressed = true;
+                        count++;
                     };
                 keyboard.on( 'a', callback );
                 keyboard.off( 'a', callback );
                 document.trigger( 'keydown', { keyCode: 65 } );
-                assert( !pressed );
+                assert( count === 0 );
             });
             it('should accept an array of input', function() {
                 var keyboard = new Keyboard(),
-                    pressed = 0,
+                    count = 0,
                     callback = function() {
-                        pressed++;
+                        count++;
                     };
                 keyboard.on( ['a', 'b', 'c'], callback );
                 keyboard.off( ['a', 'b', 'c'], callback );
                 document.trigger( 'keydown', { keyCode: 65 } );
                 document.trigger( 'keydown', { keyCode: 66 } );
                 document.trigger( 'keydown', { keyCode: 67 } );
-                assert( pressed === 0 );
+                assert( count === 0 );
             });
             it('should accept a input sequences', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false,
+                    count = 0,
                     callback = function() {
-                        pressed = true;
+                        count++;
                     };
                 keyboard.on( 'a b c', callback );
                 keyboard.off( 'a b c', callback );
                 document.trigger( 'keydown', { keyCode: 65 } );
                 document.trigger( 'keydown', { keyCode: 66 } );
                 document.trigger( 'keydown', { keyCode: 67 } );
-                assert( !pressed );
+                assert( count === 0 );
             });
             it('should accept a input combinations', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false,
+                    count = 0,
                     callback = function() {
-                        pressed = true;
+                        count++;
                     };
                 keyboard.on( 'a+b+c', callback );
                 keyboard.off( 'a+b+c', callback );
                 document.trigger( 'keydown', { keyCode: 65 } );
                 document.trigger( 'keydown', { keyCode: 66 } );
                 document.trigger( 'keydown', { keyCode: 67 } );
-                assert( !pressed );
+                assert( count === 0 );
             });
             it('should default event type to "press"', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false,
+                    count = 0,
                     callback = function() {
-                        pressed = true;
+                        count++;
                     };
                 keyboard.on( 'a', callback );
                 keyboard.off( 'a', callback );
                 document.trigger( 'keydown', { keyCode: 65 } );
-                assert( !pressed );
+                assert( count === 0 );
             });
             it('should accept a single callback function as second argument', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false,
+                    count = 0,
                     callback = function() {
-                        pressed = true;
+                        count++;
                     };
                 keyboard.on( 'a', callback );
                 keyboard.off( 'a', callback );
                 document.trigger( 'keydown', { keyCode: 65 } );
-                assert( !pressed );
+                assert( count === 0 );
             });
             it('should accept a string event type as third argument', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false,
+                    count = 0,
                     released = false,
                     pressCallback = function() {
-                        pressed = true;
+                        count++;
                     },
                     releaseCallback = function() {
                         released = true;
@@ -390,25 +511,25 @@
                 keyboard.off( 'a', releaseCallback, 'release' );
                 document.trigger( 'keydown', { keyCode: 65 } );
                 document.trigger( 'keyup', { keyCode: 65 } );
-                assert( !pressed && !released );
+                assert( !count && !released );
             });
             it('should accept an array of event types as third argument', function() {
                 var keyboard = new Keyboard(),
-                    events = 0,
+                    count = 0,
                     callback = function() {
-                        events++;
+                        count++;
                     };
                 keyboard.on( 'a', callback, ['press', 'release'] );
                 keyboard.off( 'a', callback, ['press', 'release'] );
                 document.trigger( 'keydown', { keyCode: 65 } );
                 document.trigger( 'keyup', { keyCode: 65 } );
-                assert( events === 0 );
+                assert( count === 0 );
             });
             it('should ignore the registration if no key id is provided', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false,
+                    count = 0,
                     callback = function() {
-                        pressed = true;
+                        count++;
                     };
                 TestUtil.muteConsole();
                 keyboard.on( 'a', callback );
@@ -417,14 +538,14 @@
                 keyboard.off( callback, 'press' );
                 document.trigger( 'keydown', { keyCode: 65 } );
                 document.trigger( 'keyup', { keyCode: 65 } );
-                assert( pressed );
+                assert( count === 1 );
                 TestUtil.unmuteConsole();
             });
             it('should ignore the registration if no callback function is provided', function() {
                 var keyboard = new Keyboard(),
-                    pressed = false,
+                    count = 0,
                     callback = function() {
-                        pressed = true;
+                        count++;
                     };
                 TestUtil.muteConsole();
                 keyboard.on( 'a', callback );
@@ -433,7 +554,7 @@
                 keyboard.off( 'press' );
                 document.trigger( 'keydown', { keyCode: 65 } );
                 document.trigger( 'keyup', { keyCode: 65 } );
-                assert( pressed );
+                assert( count === 1 );
                 TestUtil.unmuteConsole();
             });
             it('should ignore the command if the callback is not registered', function() {
@@ -463,16 +584,16 @@
             });
         });
         describe('#poll()', function() {
-            it('should return "down" if the key has been pressed and not released', function() {
+            it('should return "down" if the key has been count and not released', function() {
                 var keyboard = new Keyboard();
                 document.trigger( 'keydown', { keyCode: 65 } );
                 assert( keyboard.poll( 'a' ) === 'down' );
             });
-            it('should return "up" if the key has never been pressed', function() {
+            it('should return "up" if the key has never been count', function() {
                 var keyboard = new Keyboard();
                 assert( keyboard.poll( 'a' ) === 'up' );
             });
-            it('should return "up" if the key has been pressed and subsequently released', function() {
+            it('should return "up" if the key has been count and subsequently released', function() {
                 var keyboard = new Keyboard();
                 document.trigger( 'keydown', { keyCode: 65 } );
                 document.trigger( 'keyup', { keyCode: 65 } );

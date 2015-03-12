@@ -97,13 +97,17 @@
             event = events[i];
             sequence.callbacks[ event ] = sequence.callbacks[ event ] || [];
             sequence.callbacks[ event ].push( callback );
-        }
-        // add the sequence key under the key
-        for ( i=0; i<keyIds.length; i++ ) {
-            keyId = keyIds[i];
-            keys[ keyId ] = keys[ keyId ] || {};
-            keys[ keyId ].sequences = keys[ keyId ].sequences || [];
-            keys[ keyId ].sequences.push( sequenceKey );
+            // add the sequence key under each key for the event
+            for ( i=0; i<keyIds.length; i++ ) {
+                keyId = keyIds[i];
+                keys[ keyId ] = keys[ keyId ] || {};
+                keys[ keyId ].sequences = keys[ keyId ].sequences || {};
+                keys[ keyId ].sequences[event] = keys[ keyId ].sequences[event] || [];
+                if ( keys[ keyId ].sequences[event].indexOf( sequenceKey ) === -1 ) {
+                    // don't add duplicates
+                    keys[ keyId ].sequences[event].push( sequenceKey );
+                }
+            }
         }
     }
 
@@ -145,10 +149,14 @@
         // and remove sequence from all keys
         if ( Util.isEmpty( sequence.callbacks ) ) {
             delete sequences[ sequenceKey ];
-            for ( i=0; i<keyIds.length; i++ ) {
-                keyId = keyIds[i];
-                sequences = keys[ keyId ].sequences; // re-assigning sequences
-                sequences.splice( sequences.indexOf( sequenceKey ), 1 );
+            for ( i=0; i<events.length; i++ ) {
+                event = events[i];
+                // if there are no more instances of the sequence, remove from keys
+                for ( i=0; i<keyIds.length; i++ ) {
+                    keyId = keyIds[i];
+                    sequences = keys[ keyId ].sequences[ event ]; // re-assigning sequences
+                    sequences.splice( sequences.indexOf( sequenceKey ), 1 );
+                }
             }
         }
     }
@@ -181,14 +189,20 @@
             event = events[i];
             combo.callbacks[ event ] = combo.callbacks[ event ] || [];
             combo.callbacks[ event ].push( callback );
+            // add the combination key under each key for the event
+            for ( i=0; i<keyIds.length; i++ ) {
+                keyId = keyIds[i];
+                keys[ keyId ] = keys[ keyId ] || {};
+                keys[ keyId ].combos = keys[ keyId ].combos || {};
+                keys[ keyId ].combos[event] = keys[ keyId ].combos[event]  || [];
+                keys[ keyId ].combos[event] .push( comboKey );
+                if ( keys[ keyId ].combos[event] .indexOf( comboKey ) === -1 ) {
+                    // don't add duplicates
+                    keys[ keyId ].combos[event] .push( comboKey );
+                }
+            }
         }
-        // add the combination key under the key
-        for ( i=0; i<keyIds.length; i++ ) {
-            keyId = keyIds[i];
-            keys[ keyId ] = keys[ keyId ] || {};
-            keys[ keyId ].combos = keys[ keyId ].combos || [];
-            keys[ keyId ].combos.push( comboKey );
-        }
+
     }
 
     /**
@@ -229,10 +243,14 @@
         // and remove combo from all keys
         if ( Util.isEmpty( combo.callbacks ) ) {
             delete combos[ comboKey ];
-            for ( i=0; i<keyIds.length; i++ ) {
-                keyId = keyIds[i];
-                combos = keys[ keyId ].combos; // re-assigning combos
-                combos.splice( combos.indexOf( comboKey ), 1 );
+            // if there are no more instances of the combo, remove from keys
+            for ( i=0; i<events.length; i++ ) {
+                event = events[i];
+                for ( i=0; i<keyIds.length; i++ ) {
+                    keyId = keyIds[i];
+                    combos = keys[ keyId ].combos[ event ]; // re-assigning combos
+                    combos.splice( combos.indexOf( comboKey ), 1 );
+                }
             }
         }
     }
@@ -347,10 +365,10 @@
         var combos = keyboard.combos,
             combo,
             i;
-        if ( key.combos ) {
+        if ( key.combos && key.combos[eventType] ) {
             // for every combo in the key
-            for ( i=0; i<key.combos.length; i++ ) {
-                combo = combos[ key.combos[i] ];
+            for ( i=0; i<key.combos[eventType].length; i++ ) {
+                combo = combos[ key.combos[eventType][i] ];
                 if ( combo &&
                     isComboSatisfied( keyboard, combo, eventType ) ) {
                     // all keys in combo satisfy conditions, execute callbacks
@@ -391,12 +409,19 @@
         var previousTimestamp,
             sequenceKey,
             key,
-            i;
+            i, j;
+        // debugCircular( history, keyIds.length+5 );
         // for each key in the combo
-        for ( i=0; i<keyIds.length; i++ ) {
+        for ( i=0, j=0; i<keyIds.length; i++, j++ ) {
             sequenceKey = keyIds[ keyIds.length-1-i ];
-            key = history.back( i );
-
+            key = history.back( j );
+            // ignore shift keys
+            while ( sequenceKey !== "shift" &&
+                key &&
+                key.keyId === "shift" ) {
+                j++;
+                key = history.back( j );
+            }
             // see if it is the correct state
             if ( !key || // no key
                  key.keyId !== sequenceKey || // has not been pressed
@@ -423,15 +448,15 @@
             sequence,
             history,
             i;
-        if ( eventType === "press" ) {
-            history = keyboard.pressHistory;
-        } else {
-            history = keyboard.releaseHistory;
-        }
-        if ( key.sequences ) {
+        if ( key.sequences && key.sequences[eventType] ) {
+            if ( eventType === "press" ) {
+                history = keyboard.pressHistory;
+            } else {
+                history = keyboard.releaseHistory;
+            }
             // for every sequence in the key
-            for ( i=0; i<key.sequences.length; i++ ) {
-                sequence = sequences[ key.sequences[i] ];
+            for ( i=0; i<key.sequences[eventType].length; i++ ) {
+                sequence = sequences[ key.sequences[eventType][i] ];
                 // only check sequence if this key is the LAST KEY
                 if ( sequence.lastKey === keyId &&
                      isSequenceSatisfied( history, sequence.keys ) ) {

@@ -39,8 +39,10 @@ keyboard.on( ['a', 'a+b', 'a b c'], function() {
 });
 
 // bind on key press, release, or both
-keyboard.on( 'a', function() { console.log( 'Pressed a'); }, 'press' );
-keyboard.on( 'a+b+c', function() {
+keyboard.on( 'a', function() {
+    console.log( 'Pressed a');
+}, 'press' );
+keyboard.on( 'a+b', function() {
     console.log( 'Pressed a and b, then released both');
 }, 'release' );
 keyboard.on( 'a b', function() {

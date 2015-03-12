@@ -1,10 +1,6 @@
 # rolypoly.js
 
-> A lightweight mouse and keyboard input library.
-
-### Motivation
-
-
+A lightweight mouse and keyboard input library.
 
 ### Building
 

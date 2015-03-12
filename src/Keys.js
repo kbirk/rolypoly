@@ -16,7 +16,7 @@
         PAGE_UP: 'pageup',
         PAGE_DOWN: 'pagedown',
         END: 'end',
-        HOOME: 'home',
+        HOME: 'home',
         LEFT_ARROW: 'left',
         UP_ARROW: 'up',
         RIGHT_ARROW: 'right',

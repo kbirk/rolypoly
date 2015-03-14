@@ -37,20 +37,92 @@
         },
 
         /**
+         * Checks and normalizes the 'input' argument.
          *
+         * @param {String} functionName - The name of the calling function.
+         * @param {String|Array} input - The input argument.
+         * @param {Array} validInput - The recognized input. Optional.
          *
-         */ 
-        executeCallbacks: function( callbacks, eventName, event ) {
+         * @returns {Array} The array of normalized input.
+         */
+        normalizeInputArgs: function( functionName, input, validInput ) {
+            var normalizedInputs = [],
+                i;
+            if ( !( input instanceof Array ) ) {
+                input = [ input ];
+            }
+            for ( i=0; i<input.length; i++ ) {
+                if ( typeof input[i] !== 'string' ) {
+                    // input is not a string
+                    console.log( "Argument '"+input[i]+"' to '"+functionName+"' is not of type 'string', argument removed." );
+                    continue;
+                }
+                if ( validInput ) {
+                    if ( validInput.indexOf( input[i] ) === -1 ) {
+                        // input is not recognized
+                        console.log( "Argument '"+input[i]+"' to '"+functionName+"' is not a recognized input type, argument removed." );
+                        continue;
+                    }
+                }
+                normalizedInputs.push( this.normalizeString( input[i] ) );
+            }
+            return normalizedInputs;
+        },
+
+        /** Checks and normalizes the 'events' argument.
+         *
+         * @param {String} functionName - The name of the calling function.
+         * @param {String|Array} events - The events argument.
+         *
+         * @returns {Array} The array of normalized input.
+         */
+        normalizeEventArgs: function( functionName, events ) {
             var i;
-            if ( !callbacks || !callbacks[ eventName ] ) {
+            if ( !events ) {
+                events = [ 'press' ];
+            }
+            if ( !( events instanceof Array ) ) {
+                events = [ events ];
+            }
+            for ( i=0; i<events.length; i++ ) {
+                if ( events[i] !== 'press' &&
+                    events[i] !== 'release' ) {
+                    // event is not recognized
+                    console.log( "Argument '"+events[i]+"' to '"+functionName+"' is not a recognized event type, argument removed." );
+                } else {
+                    events[i] = this.normalizeString( events[i] );
+                }
+            }
+            return events;
+        },
+
+        /**
+         * Execute the functions in the callbacks object that match the
+         * provided event type.
+         *
+         * @param {Object} callbacks - The callbacks object.
+         * @param {String} eventType - The event type string.
+         * @param {Event} event - The native event object.
+         */
+        executeCallbacks: function( callbacks, eventType, event ) {
+            var i;
+            if ( !callbacks || !callbacks[ eventType ] ) {
                 return;
             }
-            callbacks = callbacks[ eventName ];
+            callbacks = callbacks[ eventType ];
             for ( i=0; i<callbacks.length; i++ ) {
                 callbacks[i]( event );
             }
         },
 
+        /**
+         * Modulos function that supports negative numbers.
+         *
+         * @param {number} num - The number to modulo.
+         * @param {number} n - The modulos.
+         *
+         * @returns {number} The resulting number.
+         */
         mod: function( num, n ) {
             return ( ( num % n ) + n ) % n;
         },

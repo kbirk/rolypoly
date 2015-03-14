@@ -7,44 +7,8 @@
         KeyMap = require('./KeyMap'),
         ShiftMap = require('./ShiftMap'),
         CircularArray = require('./CircularArray'),
-        SEQUENCE_TIMEOUT = 800;
-
-    function normalizeInputArgs( functionName, input ) {
-        var validInputs = [],
-            i;
-        if ( !( input instanceof Array ) ) {
-            input = [ input ];
-        }
-        for ( i=0; i<input.length; i++ ) {
-            if ( typeof input[i] !== 'string' ) {
-                // input is not a recognized key
-                console.log( "Argument 'input' to '"+functionName+"' is not of type 'string', argument removed." );
-            } else {
-                validInputs.push( Util.normalizeString( input[i] ) );
-            }
-        }
-        return validInputs;
-    }
-
-    function normalizeEventArgs( functionName, events ) {
-        var i;
-        if ( !events ) {
-            events = [ 'press' ];
-        }
-        if ( !( events instanceof Array ) ) {
-            events = [ events ];
-        }
-        for ( i=0; i<events.length; i++ ) {
-            if ( events[i] !== 'press' &&
-                events[i] !== 'release' ) {
-                // event is not a string
-                console.log( "Argument 'events' to '"+functionName+"' does not match 'press' or 'release', argument removed." );
-            } else {
-                events[i] = Util.normalizeString( events[i] );
-            }
-        }
-        return events;
-    }
+        SEQUENCE_TIMEOUT = 800,
+        KEY_HISTORY_BUFFER_LENGTH = 64;
 
     /**
      * Parses a sequence key into the individual key ids.
@@ -69,7 +33,7 @@
     }
 
     /**
-     * Adds a new sequence key to the Keyboard object, and binds the callback
+     * Adds a new sequence key to the Keyboard object and binds the callback
      * for the appropriate event types.
      *
      * @param {Object} keyboard - The Keyboard object.
@@ -112,7 +76,7 @@
     }
 
     /**
-     * Removes the sequence key from the Keyboard object, and removes the callback
+     * Removes the sequence key from the Keyboard object and removes the callback
      * for the appropriate event types.
      *
      * @param {Object} keyboard - The Keyboard object.
@@ -162,7 +126,7 @@
     }
 
     /**
-     * Adds a new combination key to the Keyboard object, and binds
+     * Adds a new combination key to the Keyboard object and binds
      * the callback for the appropriate event types.
      *
      * @param {Object} keyboard - The Keyboard object.
@@ -206,7 +170,7 @@
     }
 
     /**
-     * Removes the combination key from the Keyboard object, and removes the callback
+     * Removes the combination key from the Keyboard object and removes the callback
      * for the appropriate event types.
      *
      * @param {Object} keyboard - The Keyboard object.
@@ -482,7 +446,8 @@
 
     /**
      * If the key id has a shift component, if the shift button
-     * is down, return the shift key id.
+     * is down, return the shift key id. Otherwise return the original
+     * key id.
      *
      * @param {Object} key - The key map object.
      * @param {String} keyId - The key id string.
@@ -498,8 +463,8 @@
     }
 
     /**
-     * Returns a function to handle a key press event by changing the state
-     * to down and executing either the press or hold callbacks.
+     * Returns a function to handle a key press event by changing
+     * the key state and executing bound callbacks.
      *
      * @param {Object} keyboard - The Keyboard object.
      *
@@ -524,8 +489,8 @@
     }
 
     /**
-     * Returns a function to handle a key release event by changing the
-     * state and executing the relevant callbacks.
+     * Returns a function to handle a key release event by changing
+     * the key state and executing bound callbacks.
      *
      * @param {Object} keyboard - The Keyboard object.
      *
@@ -559,15 +524,15 @@
         this.keys = {};
         this.combos = {};
         this.sequences = {};
-        this.pressHistory = new CircularArray( 64 );
-        this.releaseHistory = new CircularArray( 64 );
+        this.pressHistory = new CircularArray( KEY_HISTORY_BUFFER_LENGTH );
+        this.releaseHistory = new CircularArray( KEY_HISTORY_BUFFER_LENGTH );
         // generate and attach the key event handlers
         document.addEventListener( 'keydown', handleKeyboardKeyPress( this ) );
         document.addEventListener( 'keyup', handleKeyboardKeyRelease( this ) );
     }
 
     /**
-     * Attach a listener for a key and set of events.
+     * Attach a listener for a set of input and events.
      *
      * @param {Array|String} input - The input identification strings.
      * @param {Function} callback - The callback function.
@@ -579,8 +544,8 @@
         if ( Util.checkFunctionArg( 'Keyboard.on', callback ) ) {
             return this;
         }
-        input = normalizeInputArgs( 'Keyboard.on', input );
-        events = normalizeEventArgs( 'Keyboard.on', events );
+        input = Util.normalizeInputArgs( 'Keyboard.on', input );
+        events = Util.normalizeEventArgs( 'Keyboard.on', events );
         // for each input, determine type and store accordingly
         for ( i=0; i<input.length; i++ ) {
             entry = input[i];
@@ -596,7 +561,7 @@
     };
 
     /**
-     * Remove a listener for a key or event.
+     * Remove a listener for a set of input and events.
      *
      * @param {Array|String} input - The input identification strings.
      * @param {Function} callback - The callback function.
@@ -608,8 +573,8 @@
         if ( Util.checkFunctionArg( 'Keyboard.off', callback ) ) {
             return this;
         }
-        input = normalizeInputArgs( 'Keyboard.off', input );
-        events = normalizeEventArgs( 'Keyboard.off', events );
+        input = Util.normalizeInputArgs( 'Keyboard.off', input );
+        events = Util.normalizeEventArgs( 'Keyboard.off', events );
         // for each input, determine type and store accordingly
         for ( i=0; i<input.length; i++ ) {
             entry = input[i];
@@ -627,17 +592,17 @@
     /**
      * Poll the states of the provided key identification strings.
      *
-     * @param {Array|String} input - The input identification strings.
+     * @param {Array|String} keys - The key identification strings.
      *
      * @returns {Array} The state of the provided keys.
      */
-    Keyboard.prototype.poll = function( input ) {
+    Keyboard.prototype.poll = function( keys ) {
         var states = [],
             key,
             i;
-        input = normalizeInputArgs( 'Keyboard.poll', input );
-        for ( i=0; i<input.length; i++ ) {
-            key = this.keys[ input[i] ];
+            keys = Util.normalizeInputArgs( 'Keyboard.poll', keys );
+        for ( i=0; i<keys.length; i++ ) {
+            key = this.keys[ keys[i] ];
             states.push( key ? key.state : 'up' );
         }
         if ( states.length === 1 ) {

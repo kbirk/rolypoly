@@ -1,31 +1,21 @@
 # rolypoly.js
 
+[![Bower version](https://badge.fury.io/bo/rolypoly.svg)](http://badge.fury.io/bo/rolypoly) [![Build Status](https://travis-ci.org/kbirk/rolypoly.svg?branch=master)](https://travis-ci.org/kbirk/rolypoly) [![Dependency Status](https://david-dm.org/kbirk/rolypoly.svg)](https://david-dm.org/kbirk/rolypoly)
+
 A lightweight mouse and keyboard input library.
 
-### Installing
+### Installation
 
 Requires [bower](http://bower.io/).
 
-To download:
 ```bash
 bower install rolypoly
 ```
 
-### Building
+### Usage
 
-Requires [node](http://nodejs.org/).
+Keyboard:
 
-To download dependencies:
-```bash
-npm install
-```
-
-To compile the project to `rolypoly.js` and `rolypoly.min.js` in the `build/` directory:
-```bash
-npm run build
-```
-
-### Keyboard Usage
 ```javascript
 var keyboard = new rolypoly.Keyboard();
 
@@ -72,7 +62,8 @@ keyboard.poll( ['a', 'b', 'c'], function( upOrDown ) {
 });
 ```
 
-### Mouse Usage
+Mouse:
+
 ```javascript
 var mouse = new rolypoly.Mouse();
 

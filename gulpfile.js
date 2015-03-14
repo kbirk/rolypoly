@@ -66,14 +66,14 @@
         return gulp.src( './src/*.js' )
             .pipe( istanbul( { includeUntested: false } ) ) // Covering files
             .on( 'finish', function () {
-                gulp.src( [ './test/*.js' ] )
+                return gulp.src( [ './test/*.js' ] )
                     .pipe( mocha( { reporter: 'list' } )
                         .on( 'error', handleError) ) // print mocha error message
                     .pipe( istanbul.writeReports() ); // Creating the reports after tests runned
             });
     });
 
-    gulp.task('test-on-travis', ['test'], function() {
+    gulp.task('test-on-travis', [ 'test' ], function() {
         var coveralls = require('gulp-coveralls');
         return gulp.src('./coverage/lcov.info')
             .pipe( coveralls() );

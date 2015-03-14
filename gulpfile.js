@@ -29,24 +29,12 @@
             .pipe( gulp.dest( 'build' ) );
     }
 
-    function build( root, output, minify, watch ) {
-        var watchify = require('watchify'),
-            browserify = require('browserify'),
+    function build( root, output, minify ) {
+        var browserify = require('browserify'),
             b = browserify( './src/api.js', {
                 debug: !minify,
                 standalone: 'rolypoly'
             });
-        if ( watch ) {
-            b = watchify( b );
-            b.on( 'update', function( ids ) {
-                bundle( b, output );
-                console.log("\nWatch detected changes to: ");
-                for ( var i=0; i<ids.length; ids++ ) {
-                   console.log( '\t'+ids[i] );
-                }
-                console.log('Updating build');
-            });
-        }
         if ( minify ) {
             return bundleMin( b, output );
         } else {
@@ -66,9 +54,7 @@
 
     gulp.task('lint', function() {
         var jshint = require('gulp-jshint');
-        return gulp.src( [ './src/**/*.js',
-                './examples/**/*.js',
-                '!./examples/vendor/*.js' ] )
+        return gulp.src( './src/**/*.js' )
             .pipe( jshint() )
             .pipe( jshint('.jshintrc') )
             .pipe( jshint.reporter('jshint-stylish') );
@@ -77,7 +63,7 @@
     gulp.task('test', function() {
         var istanbul = require('gulp-istanbul'),
             mocha = require('gulp-mocha');
-        return gulp.src( [ './src/*.js' ] )
+        return gulp.src( './src/*.js' )
             .pipe( istanbul( { includeUntested: false } ) ) // Covering files
             .on( 'finish', function () {
                 gulp.src( [ './test/*.js' ] )
@@ -88,11 +74,11 @@
     });
 
     gulp.task('build-min-js', [ 'clean' ], function() {
-        return build( './src/api.js', 'rolypoly.min.js', true, false );
+        return build( './src/api.js', 'rolypoly.min.js', true );
     });
 
     gulp.task('build-js', [ 'clean' ], function() {
-        return build( './src/api.js', 'rolypoly.js', false, false );
+        return build( './src/api.js', 'rolypoly.js', false );
     });
 
     gulp.task('build', [ 'build-js', 'build-min-js' ], function() {

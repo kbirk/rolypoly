@@ -2,6 +2,15 @@
 
 A lightweight mouse and keyboard input library.
 
+### Installing
+
+Requires [bower](http://bower.io/).
+
+To download:
+```bash
+bower install rolypoly
+```
+
 ### Building
 
 Requires [node](http://nodejs.org/).

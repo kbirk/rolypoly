@@ -22,7 +22,7 @@
     "node_modules",
     "bower_components",
     "src",
-    "gulpfile",
+    "gulpfile.js",
     "package.json",
     "test"
   ]

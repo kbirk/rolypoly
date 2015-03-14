@@ -73,6 +73,12 @@
             });
     });
 
+    gulp.task('test-on-travis', ['test'], function() {
+        var coveralls = require('gulp-coveralls');
+        return gulp.src('./coverage/lcov.info')
+            .pipe( coveralls() );
+    });
+
     gulp.task('build-min-js', [ 'clean' ], function() {
         return build( './src/api.js', 'rolypoly.min.js', true );
     });

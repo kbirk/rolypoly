@@ -28,7 +28,7 @@
   "scripts": {
     "build": "./node_modules/.bin/gulp build",
     "test": "./node_modules/.bin/gulp test",
-    "test-on-travis": "./node_modules/.bin/gulp test-on-travis",
+    "coveralls": "./node_modules/.bin/gulp coveralls",
     "lint": "./node_modules/.bin/gulp lint"
   }
 }

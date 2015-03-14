@@ -1,6 +1,6 @@
 # rolypoly.js
 
-[![Bower version](https://badge.fury.io/bo/rolypoly.svg)](http://badge.fury.io/bo/rolypoly) [![Build Status](https://travis-ci.org/kbirk/rolypoly.svg?branch=master)](https://travis-ci.org/kbirk/rolypoly) [![Dependency Status](https://david-dm.org/kbirk/rolypoly.svg)](https://david-dm.org/kbirk/rolypoly)
+[![Bower version](https://badge.fury.io/bo/rolypoly.svg)](http://badge.fury.io/bo/rolypoly) [![Build Status](https://travis-ci.org/kbirk/rolypoly.svg?branch=master)](https://travis-ci.org/kbirk/rolypoly) [![Coverage Status](https://coveralls.io/repos/kbirk/rolypoly/badge.svg)](https://coveralls.io/r/kbirk/rolypoly) [![Dependency Status](https://david-dm.org/kbirk/rolypoly.svg)](https://david-dm.org/kbirk/rolypoly)
 
 A lightweight mouse and keyboard input library.
 

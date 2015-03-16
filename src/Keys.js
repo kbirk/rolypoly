@@ -2,34 +2,19 @@
 
     "use strict";
 
-    module.exports = {
+    var KeyMap = require('./KeyMap'),
+        ShiftMap = require('./ShiftMap'),
+        Keys = {},
+        keyCode;
 
-        BACKSPACE: 'backspace',
-        TAB: 'tab',
-        ENTER: 'enter',
-        SHIFT: 'shift',
-        CTRL: 'ctrl',
-        ALT: 'alt',
-        PAUSE_BREAK: 'pausebreak',
-        CAPS_LOCK: 'capslock',
-        ESC: 'esc',
-        PAGE_UP: 'pageup',
-        PAGE_DOWN: 'pagedown',
-        END: 'end',
-        HOME: 'home',
-        LEFT_ARROW: 'left',
-        UP_ARROW: 'up',
-        RIGHT_ARROW: 'right',
-        DOWN_ARROW: 'down',
-        PRINT_SCREEN: 'printscreen',
-        INSERT: 'insert',
-        DELETE: 'delete',
-        WINDOWS: 'windows',
-        SELECT: 'select',
-        SPACE_BAR: 'space',
-        NUM_LOCK: 'numlock',
-        SCROLL_LOCK: 'scrolllock',
+    for ( keyCode in KeyMap ) {
+        Keys[ KeyMap[ keyCode ] ] = true;
+    }
 
-    };
+    for ( keyCode in ShiftMap ) {
+        Keys[ ShiftMap[ keyCode ] ] = true;
+    }
+
+    module.exports = Keys;
 
 }());

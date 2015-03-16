@@ -135,13 +135,14 @@
          * @returns {boolean} true if the object has keys, false if not.
          */
         isEmpty: function( obj ) {
-            for( var prop in obj ) {
-                if( obj.hasOwnProperty( prop ) ) {
+            var key;
+            for ( key in obj ) {
+                if ( obj.hasOwnProperty( key ) ) {
                     return false;
                 }
             }
             return true;
-        },
+        }
 
     };
 

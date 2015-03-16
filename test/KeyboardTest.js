@@ -25,6 +25,18 @@
             TestUtil.unmuteConsole();
         });
 
+        it('should only accept recognized keys', function() {
+            var keyboard = new Keyboard();
+            TestUtil.muteConsole();
+            keyboard.on( 'a', function() {} );
+            keyboard.on( 'b+c+d', function() {} );
+            keyboard.on( 'a shift escape', function() {} );
+            keyboard.on( [ '1+3+error', 'a b error', '2', 4, 'error', {}, [] ], function() {} );
+            keyboard.off( [ '1+3+error', 'a b error', '2', 4, 'error', {}, [] ], function() {} );
+            assert( true );
+            TestUtil.unmuteConsole();
+        });
+
         it('should register callbacks for single key press events', function() {
             var keyboard = new Keyboard(),
                 count = 0;
@@ -49,6 +61,7 @@
         it('should not process a "release" event unless it has processed a preceeding "press" event', function() {
             var keyboard = new Keyboard(),
                 count = 0;
+            document.trigger( 'keyup', { keyCode: 65 } );
             keyboard.on( 'a', function() {
                 count++;
             }, 'release' );
@@ -105,7 +118,7 @@
                 count = 0;
             keyboard.on( 'a+b+c', function() {
                 count++;
-            }, 'press' );
+            }, 'release' );
             document.trigger( 'keydown', { keyCode: 65 } );
             document.trigger( 'keydown', { keyCode: 66 } );
             document.trigger( 'keydown', { keyCode: 67 } );
@@ -115,7 +128,38 @@
             assert( count === 1 );
         });
 
-        it('should support shifted keys in simultaneous key combination events', function() {
+        it('should ignored duplicate keys when registering callbacks for simultaneous key combination events', function() {
+            var keyboard = new Keyboard(),
+                count = 0;
+            keyboard.on( 'a+a+b+c+c+c', function() {
+                count++;
+            }, 'press' );
+            document.trigger( 'keydown', { keyCode: 65 } );
+            document.trigger( 'keydown', { keyCode: 66 } );
+            document.trigger( 'keydown', { keyCode: 67 } );
+            assert( count === 1 );
+        });
+
+        it('should support "+" characters in simultaneous key combination events', function() {
+            var keyboard = new Keyboard(),
+                count = 0;
+            keyboard.on( 'a+++b+c', function() {
+                count++;
+            }, 'press' );
+            keyboard.on( '+++a+b+c', function() {
+                count++;
+            }, 'press' );
+            keyboard.on( 'a+b+c++', function() {
+                count++;
+            }, 'press' );
+            document.trigger( 'keydown', { keyCode: 65 } );
+            document.trigger( 'keydown', { keyCode: 107 } );
+            document.trigger( 'keydown', { keyCode: 66 } );
+            document.trigger( 'keydown', { keyCode: 67 } );
+            assert( count === 3 );
+        });
+
+        it('should support shifted keys in simultaneous key combination events, if the shifted keys are pressed last', function() {
             var keyboard = new Keyboard(),
                 count = 0;
             keyboard.on( 'a+b+!', function() {
@@ -128,12 +172,25 @@
             assert( count === 1 );
         });
 
-        it('should ingore simultaneous key combination release events if all keys have not been count simultaneously', function() {
+        it('should not support shifted keys in simultaneous key combination events, if the shifted keys are not pressed last', function() {
+            var keyboard = new Keyboard(),
+                count = 0;
+            keyboard.on( 'a+2+!', function() {
+                count++;
+            }, 'press' );
+            document.trigger( 'keydown', { keyCode: 65 } );
+            document.trigger( 'keydown', { keyCode: 16 } );
+            document.trigger( 'keydown', { keyCode: 49 } );
+            document.trigger( 'keydown', { keyCode: 50 } );
+            assert( count === 0 );
+        });
+
+        it('should ingore simultaneous key combination release events if all keys have not been down simultaneously', function() {
             var keyboard = new Keyboard(),
                 count = 0;
             keyboard.on( 'a+b+c', function() {
                 count++;
-            }, 'press' );
+            }, 'release' );
             document.trigger( 'keydown', { keyCode: 65 } );
             document.trigger( 'keydown', { keyCode: 66 } );
             document.trigger( 'keyup', { keyCode: 65 } );
@@ -369,6 +426,9 @@
                 document.trigger( 'keyup', { keyCode: 65 } );
                 assert( count === 2 );
             });
+            it('should ignore un recognized key ids', function() {
+
+            });
             it('should ignore the registration if no key id is provided', function() {
                 var keyboard = new Keyboard(),
                     count = 0;
@@ -525,7 +585,7 @@
                 document.trigger( 'keyup', { keyCode: 65 } );
                 assert( count === 0 );
             });
-            it('should ignore the registration if no key id is provided', function() {
+            it('should ignore the unregistration if no key id is provided', function() {
                 var keyboard = new Keyboard(),
                     count = 0,
                     callback = function() {
@@ -541,13 +601,16 @@
                 assert( count === 1 );
                 TestUtil.unmuteConsole();
             });
-            it('should ignore the registration if no callback function is provided', function() {
+            it('should ignore the unregistration if no callback function is provided', function() {
                 var keyboard = new Keyboard(),
                     count = 0,
                     callback = function() {
                         count++;
                     };
                 TestUtil.muteConsole();
+                keyboard.off( 'a b c', callback );
+                keyboard.off( 'a+b+c', callback );
+                keyboard.off( 'a', callback );
                 keyboard.on( 'a', callback );
                 keyboard.off( 'a' );
                 keyboard.off( 'a', 'press' );

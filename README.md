@@ -24,20 +24,20 @@ Register input callbacks:
 
 ```javascript
 // single keys
-keyboard.on( 'a', function() { ... } );
-keyboard.on( '@', function() { ... }, 'release' );
-keyboard.on( 'enter', function() { ... } );
+keyboard.on( 'a', function() {} );
+keyboard.on( '@', function() {}, 'release' );
+keyboard.on( 'enter', function() {} );
 
 // combinations
-keyboard.on( 'a+b+c', function() { ... } );
-keyboard.on( 'a+!+up', function() { ... }, ['press','release'] );
+keyboard.on( 'a+b+c', function() {} );
+keyboard.on( 'g+enter', function() {}, ['press','release'] );
 
 // sequences
-keyboard.on( 'a b c', function() { ... });
-keyboard.on( 'a # esc', function() { ... });
+keyboard.on( 'left down enter', function() {}, 'release' );
+keyboard.on( 'a # esc', function() {} );
 
 // multiple inputs
-keyboard.on( ['a', 'a+b', 'a b c'], function() { ... } );
+keyboard.on( ['a', 'a+b', 'a b c'], function() {} );
 ```
 
 Poll input state:
@@ -69,9 +69,9 @@ mouse.on( 'move', function( e ) {
 });
 
 // bind key events
-mouse.on( 'left', function() { ... });
-mouse.on( 'middle', function() { ... }, 'release');
-mouse.on( 'right', function() { ... });
+mouse.on( 'left', function() {} );
+mouse.on( 'middle', function() {}, 'release');
+mouse.on( 'right', function() {} );
 ```
 
 Poll input state:

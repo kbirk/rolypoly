@@ -36,6 +36,19 @@
             TestUtil.unmuteConsole();
         });
 
+        it('should not process a "release" event unless it has processed a preceeding "press" event', function() {
+            var mouse = new Mouse(),
+                count = 0;
+            document.trigger( 'mouseup', { button: 0 } );
+            mouse.on( 'left', function() {
+                count++;
+            }, 'release' );
+            document.trigger( 'mouseup', { button: 0 } );
+            document.trigger( 'mousedown', { button: 0 } );
+            document.trigger( 'mouseup', { button: 0 } );
+            assert( count === 1 );
+        });
+
         it('should provide previous position during "move" callback event object', function() {
             var mouse = new Mouse(),
                 previous;
@@ -272,7 +285,7 @@
                 document.trigger( 'mousedown', { button: 0 } );
                 assert( count === 0 );
             });
-            it('should ignore the registration if no key id is provided', function() {
+            it('should ignore the unregistration if no key id is provided', function() {
                 var mouse = new Mouse(),
                     count = 0,
                     callback = function() {
@@ -288,13 +301,15 @@
                 assert( count === 1 );
                 TestUtil.unmuteConsole();
             });
-            it('should ignore the registration if no callback function is provided', function() {
+            it('should ignore the unregistration if no callback function is provided', function() {
                 var mouse = new Mouse(),
                     count = 0,
                     callback = function() {
                         count++;
                     };
                 TestUtil.muteConsole();
+                mouse.off( 'move', callback );
+                mouse.off( 'left', callback );
                 mouse.on( 'left', callback );
                 mouse.off( 'left' );
                 mouse.off( 'left', 'press' );

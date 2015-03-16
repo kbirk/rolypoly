@@ -4,11 +4,42 @@
 
     var Util = require('./Util'),
         Keys = require('./Keys'),
+        KeyEnums = require('./KeyEnums'),
         KeyMap = require('./KeyMap'),
         ShiftMap = require('./ShiftMap'),
         CircularArray = require('./CircularArray'),
         SEQUENCE_TIMEOUT = 800,
         KEY_HISTORY_BUFFER_LENGTH = 64;
+
+    /**
+     * Check if key identification strings are recognized.
+     *
+     * @param {String} functionName - The name of the calling function.
+     * @param {Array} keyIds - The key input arguments.
+     *
+     * @returns {boolean} Whether or not the key ids are valid.
+     */
+    function checkKeyIds( functionName, keyIds ) {
+        var i;
+        for ( i=0; i<keyIds.length; i++ ) {
+            if ( !Keys[ keyIds[i] ] ) {
+                console.log( "Argument '"+keyIds[i]+"' to '"+functionName+"' is not a recognized event type, command ignored." );
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the input is recognized as a key sequence.
+     *
+     * @param {String} input - The input string.
+     *
+     * @returns {boolean} True if the input is a key sequence.
+     */
+    function isSequenceInput( input ) {
+        return input.split(' ').length > 1;
+    }
 
     /**
      * Parses a sequence key into the individual key ids.
@@ -18,7 +49,18 @@
      * @returns {Array} The array of key ids.
      */
     function parseSequence( sequenceKey ) {
-        return sequenceKey.length > 1 ? sequenceKey.split(' ') : [ sequenceKey ];
+        return sequenceKey.split(' ');
+    }
+
+    /**
+     * Returns true if the input is recognized as a key combination.
+     *
+     * @param {String} input - The input string.
+     *
+     * @returns {boolean} True if the input is a key combination.
+     */
+    function isCombinationInput( input ) {
+        return ( input.length > 1 ) ? input.split('+').length > 1 : false;
     }
 
     /**
@@ -29,7 +71,27 @@
      * @returns {Array} The array of key ids.
      */
     function parseCombination( comboKey ) {
-        return comboKey.length > 1 ? comboKey.split('+') : [ comboKey ];
+        var temp = comboKey.split(/\+\+\+|\+\+/),
+            result = [],
+            i;
+        // my lack of regex knowledge is shameful
+        if ( temp.length > 1 ) {
+            for ( i=0; i<temp.length; i++ ) {
+                if ( temp[i].length === 0 ) {
+                    if ( i === 0 ) {
+                        result.push( '+' );
+                    }
+                } else {
+                    result = result.concat( temp[i].split('+') );
+                    if ( i !== temp.length-1 ) {
+                        result.push( '+' );
+                    }
+                }
+            }
+        } else {
+            result = comboKey.split('+');
+        }
+        return result;
     }
 
     /**
@@ -49,6 +111,10 @@
             event,
             keyId,
             i;
+        // check input
+        if ( checkKeyIds( 'Keyboard.on', keyIds ) ) {
+            return;
+        }
         // create sequence entry if it does not already exist
         sequences[ sequenceKey ] = sequences[ sequenceKey ] || {
             keys: keyIds,
@@ -66,10 +132,10 @@
                 keyId = keyIds[i];
                 keys[ keyId ] = keys[ keyId ] || {};
                 keys[ keyId ].sequences = keys[ keyId ].sequences || {};
-                keys[ keyId ].sequences[event] = keys[ keyId ].sequences[event] || [];
-                if ( keys[ keyId ].sequences[event].indexOf( sequenceKey ) === -1 ) {
+                keys[ keyId ].sequences[ event ] = keys[ keyId ].sequences[ event ] || [];
+                if ( keys[ keyId ].sequences[ event ].indexOf( sequenceKey ) === -1 ) {
                     // don't add duplicates
-                    keys[ keyId ].sequences[event].push( sequenceKey );
+                    keys[ keyId ].sequences[ event ].push( sequenceKey );
                 }
             }
         }
@@ -93,6 +159,10 @@
             event,
             keyId,
             i;
+        // check input
+        if ( checkKeyIds( 'Keyboard.off', keyIds ) ) {
+            return;
+        }
         // exit early if entry doesnt even exist for sequence
         if ( !sequence ) {
             return;
@@ -142,6 +212,10 @@
             event,
             keyId,
             i;
+        // check input
+        if ( checkKeyIds( 'Keyboard.on', keyIds ) ) {
+            return;
+        }
         // create combination entry if it does not already exist
         combos[ comboKey ] = combos[ comboKey ] || {
             keys: keyIds,
@@ -158,11 +232,10 @@
                 keyId = keyIds[i];
                 keys[ keyId ] = keys[ keyId ] || {};
                 keys[ keyId ].combos = keys[ keyId ].combos || {};
-                keys[ keyId ].combos[event] = keys[ keyId ].combos[event]  || [];
-                keys[ keyId ].combos[event] .push( comboKey );
-                if ( keys[ keyId ].combos[event] .indexOf( comboKey ) === -1 ) {
+                keys[ keyId ].combos[ event ] = keys[ keyId ].combos[ event ]  || [];
+                if ( keys[ keyId ].combos[ event ] .indexOf( comboKey ) === -1 ) {
                     // don't add duplicates
-                    keys[ keyId ].combos[event] .push( comboKey );
+                    keys[ keyId ].combos[ event ].push( comboKey );
                 }
             }
         }
@@ -187,6 +260,10 @@
             event,
             keyId,
             i;
+        // check input
+        if ( checkKeyIds( 'Keyboard.off', keyIds ) ) {
+            return;
+        }
         // exit early if entry doesnt even exist for combo
         if ( !combo ) {
             return;
@@ -232,6 +309,10 @@
             key = keys[ keyId ] = keys[ keyId ] || {},
             event,
             i;
+        // check input
+        if ( checkKeyIds( 'Keyboard.on', [ keyId ] ) ) {
+            return;
+        }
         // bind callback under the provided events
         for ( i=0; i<events.length; i++ ) {
             event = events[i];
@@ -255,6 +336,10 @@
             callbacks,
             event,
             i;
+        // check input
+        if ( checkKeyIds( 'Keyboard.off', [ keyId ] ) ) {
+            return;
+        }
         // exit early if entry doesnt even exist for key
         if ( !key ) {
             return;
@@ -329,14 +414,45 @@
         var combos = keyboard.combos,
             combo,
             i;
-        if ( key.combos && key.combos[eventType] ) {
-            // for every combo in the key
-            for ( i=0; i<key.combos[eventType].length; i++ ) {
-                combo = combos[ key.combos[eventType][i] ];
-                if ( combo &&
-                    isComboSatisfied( keyboard, combo, eventType ) ) {
-                    // all keys in combo satisfy conditions, execute callbacks
-                    Util.executeCallbacks( combo.callbacks, eventType, event );
+        if ( key.combos ) {
+            // release combination events require press combination events to
+            // be tracked, therefore if a press event occurs that is part of a
+            // combination it MUST be processed, regardless if there is a
+            // callback.
+            if ( eventType === "press" ) {
+                // process the press callbacks
+                if ( key.combos.press ) {
+                    // for every combo in the key
+                    for ( i=0; i<key.combos.press.length; i++ ) {
+                        combo = combos[ key.combos.press[i] ];
+                        if ( isComboSatisfied( keyboard, combo, "press" ) ) {
+                            // all keys in combo satisfy conditions, execute callbacks
+                            Util.executeCallbacks( combo.callbacks, "press", event );
+                        }
+                    }
+                }
+                // process the release callbacks, ignore callbacks as this isn't
+                // a release event but is required for release events
+                if ( key.combos.release ) {
+                    // process release events to flag they have been pressed prior
+                    // for every combo in the key
+                    for ( i=0; i<key.combos.release.length; i++ ) {
+                        combo = combos[ key.combos.release[i] ];
+                        // process combo but don't execute any callbacks
+                        isComboSatisfied( keyboard, combo, "press" );
+                    }
+                }
+            } else {
+                // process the release callbacks
+                if ( key.combos.release ) {
+                    // for every combo in the key
+                    for ( i=0; i<key.combos.release.length; i++ ) {
+                        combo = combos[ key.combos.release[i] ];
+                        if ( isComboSatisfied( keyboard, combo, "release" ) ) {
+                            // all keys in combo satisfy conditions, execute callbacks
+                            Util.executeCallbacks( combo.callbacks, "release", event );
+                        }
+                    }
                 }
             }
         }
@@ -455,7 +571,7 @@
      * @returns {String} The shifted or original key id.
      */
     function shiftKeyId( keys, keyId ) {
-        var shift = keys[ Keys.SHIFT ];
+        var shift = keys[ KeyEnums.SHIFT ];
         if ( shift && shift.state === "down" ) {
             return ShiftMap[ keyId ] || keyId;
         }
@@ -549,9 +665,9 @@
         // for each input, determine type and store accordingly
         for ( i=0; i<input.length; i++ ) {
             entry = input[i];
-            if ( parseSequence( entry ).length > 1 ) {
+            if ( isSequenceInput( entry ) ) {
                 addSequence( this, entry, events, callback );
-            } else if ( parseCombination( entry ).length > 1 ) {
+            } else if ( isCombinationInput( entry ) ) {
                 addCombination( this, entry, events, callback );
             } else {
                 addKey( this, entry, events, callback );
@@ -578,9 +694,9 @@
         // for each input, determine type and store accordingly
         for ( i=0; i<input.length; i++ ) {
             entry = input[i];
-            if ( parseSequence( entry ).length > 1 ) {
+            if ( isSequenceInput( entry ) ) {
                 removeSequence( this, entry, events, callback );
-            } else if ( parseCombination( entry ).length > 1 ) {
+            } else if ( isCombinationInput( entry ) ) {
                 removeCombination( this, entry, events, callback );
             } else {
                 removeKey( this, entry, events, callback );

@@ -44,7 +44,7 @@
 
     function handleError( err ) {
         console.log( err.toString() );
-        this.emit('end');
+        process.exit(1);
     }
 
     gulp.task('clean', function () {

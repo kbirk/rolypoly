@@ -21,7 +21,7 @@
             keyboard.on( 'a', function() {}, 'press' );
             keyboard.on( 'a', function() {}, 'release' );
             keyboard.on( 'a', function() {}, 'error' );
-            assert( true );
+            assert( false );
             TestUtil.unmuteConsole();
         });
 

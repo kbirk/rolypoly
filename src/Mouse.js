@@ -87,6 +87,11 @@
         };
     }
 
+    /**
+     * Instantiates a mouse object.
+     * @class Mouse
+     * @classdesc A mouse input handling object.
+     */
     function Mouse() {
         this.buttons = {};
         this.mouse = {};
@@ -98,6 +103,7 @@
 
     /**
      * Attach a listener for a set of input and events.
+     * @memberof Mouse
      *
      * @param {Array|String} input - The input identification string.
      * @param {Function} callback - The callback function.
@@ -138,6 +144,7 @@
 
     /**
      * Remove a listener for a set of input and events.
+     * @memberof Mouse
      *
      * @param {Array|String} input - The input identification string.
      * @param {Function} callback - The callback function.
@@ -178,6 +185,7 @@
 
     /**
      * Poll the states of the provided button identification strings.
+     * @memberof Mouse
      *
      * @param {Array|String} buttons - The button identification strings.
      *

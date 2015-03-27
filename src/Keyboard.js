@@ -636,6 +636,11 @@
         };
     }
 
+    /**
+     * Instantiates a keyboard object.
+     * @class Keyboard
+     * @classdesc A keyboard input handling object.
+     */
     function Keyboard() {
         this.keys = {};
         this.combos = {};
@@ -649,6 +654,7 @@
 
     /**
      * Attach a listener for a set of input and events.
+     * @memberof Keyboard
      *
      * @param {Array|String} input - The input identification strings.
      * @param {Function} callback - The callback function.
@@ -678,6 +684,7 @@
 
     /**
      * Remove a listener for a set of input and events.
+     * @memberof Keyboard
      *
      * @param {Array|String} input - The input identification strings.
      * @param {Function} callback - The callback function.
@@ -707,6 +714,7 @@
 
     /**
      * Poll the states of the provided key identification strings.
+     * @memberof Keyboard
      *
      * @param {Array|String} keys - The key identification strings.
      *

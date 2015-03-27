@@ -5,9 +5,11 @@
     var Util = require('./Util');
 
     /**
-     * A simple circular array that is allocated to a fixed size.
-     * When elements are pushed beyond its allocated length, they
-     * will instead overwrite exsting indices.
+     * Instantiates a circular array object.
+     * @class CircularArray
+     * @classdesc A simple circular array that is allocated to a fixed size.
+     *     When elements are pushed beyond its allocated length, they
+     *     will instead overwrite exsting indices.
      *
      * @param {number} length - The length of the array.
      */
@@ -19,6 +21,7 @@
 
     /**
      * Push an element to the current index of the array.
+     * @memberof CircularArray
      *
      * @param {*} data - The data to insert into the array.
      */
@@ -30,6 +33,7 @@
     /**
      * Return the most recently pushed element. An index offset may
      * be provided.
+     * @memberof CircularArray
      *
      * @param {number} offset - An offset from the current index. Optional.
      */

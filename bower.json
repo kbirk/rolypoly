@@ -1,29 +1,29 @@
 {
-  "name": "rolypoly",
-  "version": "0.2.0",
-  "homepage": "https://github.com/kbirk/rolypoly",
-  "authors": [
-    "kbirk <birk.kevin@gmail.com>"
-  ],
-  "description": "A lightweight mouse and keyboard input library",
-  "main": "./build/rolypoly.min.js",
-  "moduleType": [
-    "globals"
-  ],
-  "keywords": [
-    "mouse",
-    "keyboard",
-    "input",
-    "polling"
-  ],
-  "license": "MIT",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "src",
-    "gulpfile.js",
-    "package.json",
-    "test"
-  ]
+    "name": "rolypoly",
+    "version": "0.2.0",
+    "homepage": "https://github.com/kbirk/rolypoly",
+    "authors": [
+        "kbirk <birk.kevin@gmail.com>"
+    ],
+    "description": "A lightweight mouse and keyboard input library",
+    "main": "./build/rolypoly.min.js",
+    "moduleType": [
+        "globals"
+    ],
+    "keywords": [
+        "mouse",
+        "keyboard",
+        "input",
+        "polling"
+    ],
+    "license": "MIT",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "src",
+        "gulpfile.js",
+        "package.json",
+        "test"
+    ]
 }

@@ -6,8 +6,7 @@
 
         Keyboard: require('./Keyboard'),
         Mouse: require('./Mouse')
-        
+
     };
 
 }());
-

@@ -31,7 +31,7 @@
 
     function build( root, output, minify ) {
         var browserify = require('browserify'),
-            b = browserify( './src/api.js', {
+            b = browserify( root, {
                 debug: !minify,
                 standalone: 'rolypoly'
             });
@@ -80,11 +80,11 @@
     });
 
     gulp.task('build-min-js', [ 'clean' ], function() {
-        return build( './src/api.js', 'rolypoly.min.js', true );
+        return build( './src/exports.js', 'rolypoly.min.js', true );
     });
 
     gulp.task('build-js', [ 'clean' ], function() {
-        return build( './src/api.js', 'rolypoly.js', false );
+        return build( './src/exports.js', 'rolypoly.js', false );
     });
 
     gulp.task('build', [ 'build-js', 'build-min-js' ], function() {

@@ -187,22 +187,24 @@
      * Poll the states of the provided button identification strings.
      * @memberof Mouse
      *
-     * @param {Array|String} buttons - The button identification strings.
+     * @param {Array|String} buttonIds - The button identification strings.
      *
      * @returns {Array} The state of the provided buttons.
      */
-    Mouse.prototype.poll = function( buttons ) {
-        var states = [],
+    Mouse.prototype.poll = function( buttonIds ) {
+        var states = {},
+            buttonId,
             button,
             i;
-        buttons = Util.normalizeInputArgs( 'Mouse.poll',
-            buttons, [ 'left','middle','right','move' ] );
-        for ( i=0; i<buttons.length; i++ ) {
-            button = this.buttons[ buttons[i] ];
-            states.push( button ? button.state : 'up' );
+        buttonIds = Util.normalizeInputArgs( 'Mouse.poll', buttonIds, [ 'left', 'middle', 'right' ] );
+        if ( buttonIds.length === 1 ) {
+            button = this.buttons[ buttonIds[0] ];
+            return button ? button.state : 'up';
         }
-        if ( states.length === 1 ) {
-            return states[0];
+        for ( i=0; i<buttonIds.length; i++ ) {
+            buttonId = buttonIds[i];
+            button = this.buttons[ buttonId ];
+            states[ buttonId ] = button ? button.state : 'up' ;
         }
         return states;
     };

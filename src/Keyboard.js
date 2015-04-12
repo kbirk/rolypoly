@@ -716,21 +716,24 @@
      * Poll the states of the provided key identification strings.
      * @memberof Keyboard
      *
-     * @param {Array|String} keys - The key identification strings.
+     * @param {Array|String} keyIds - The key identification strings.
      *
      * @returns {Array} The state of the provided keys.
      */
-    Keyboard.prototype.poll = function( keys ) {
-        var states = [],
+    Keyboard.prototype.poll = function( keyIds ) {
+        var states = {},
+            keyId,
             key,
             i;
-            keys = Util.normalizeInputArgs( 'Keyboard.poll', keys );
-        for ( i=0; i<keys.length; i++ ) {
-            key = this.keys[ keys[i] ];
-            states.push( key ? key.state : 'up' );
+        keyIds = Util.normalizeInputArgs( 'Keyboard.poll', keyIds );
+        if ( keyIds.length === 1 ) {
+            key = this.keys[ keyIds[0] ];
+            return key ? key.state : 'up';
         }
-        if ( states.length === 1 ) {
-            return states[0];
+        for ( i=0; i<keyIds.length; i++ ) {
+            keyId = keyIds[i];
+            key = this.keys[ keyId ];
+            states[ keyId ] = key ? key.state : 'up' ;
         }
         return states;
     };

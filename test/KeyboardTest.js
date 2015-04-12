@@ -668,7 +668,7 @@
             });
             it('should return an array if provided an array as input', function() {
                 var keyboard = new Keyboard();
-                assert( keyboard.poll( ['a', 'b'] ) instanceof Array );
+                assert( keyboard.poll( ['a', 'b'] ) instanceof Object );
             });
         });
     });

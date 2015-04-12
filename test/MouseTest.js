@@ -362,9 +362,9 @@
                 var mouse = new Mouse();
                 assert( typeof mouse.poll( 'left' ) === 'string' );
             });
-            it('should return an array if provided an array as input', function() {
+            it('should return an object if provided an array as input', function() {
                 var mouse = new Mouse();
-                assert( mouse.poll( ['left', 'middle'] ) instanceof Array );
+                assert( mouse.poll( ['left', 'middle'] ) instanceof Object );
             });
         });
     });

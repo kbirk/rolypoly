@@ -14,6 +14,7 @@
      * @param {number} length - The length of the array.
      */
     function CircularArray( length ) {
+        length = length || 256;
         this.buffer = new Array( length );
         this.length = length;
         this.index = 0;
@@ -36,6 +37,8 @@
      * @memberof CircularArray
      *
      * @param {number} offset - An offset from the current index. Optional.
+     *
+     * @returns {*} The most recently pushed element.
      */
     CircularArray.prototype.back = function( offset ) {
         offset = offset ? offset : 0;

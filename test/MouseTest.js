@@ -1,4 +1,5 @@
-( function() {
+(function() {
+    
     "use strict";
 
     var assert = require('assert'),
@@ -66,7 +67,7 @@
         it('should only trigger a "move" if the mouse position changes', function() {
             var mouse = new Mouse(),
                 count = 0;
-            mouse.on( 'move', function( event ) {
+            mouse.on( 'move', function() {
                 count++;
             });
             document.trigger( 'mousemove', { clientX: 50, clientY: 60 } );

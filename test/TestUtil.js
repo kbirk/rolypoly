@@ -1,4 +1,6 @@
-( function() {
+(function() {
+
+    "use strict";
 
     var _document,
         _log;
@@ -60,47 +62,6 @@
             }
         }
 
-    }
+    };
+
 }());
-
-/*
-function triggerKeyEvent( eventType, keyCode ) {
-
-    "use strict";
-
-    function isChrome() {
-        // this is spoofable, but it is only used for unit testing
-        // so spoof away
-        if ( navigator.userAgent.indexOf("Chrome") != -1 ) {
-            return true;
-        }
-        return false;
-    }
-
-    var event = document.createEvent('KeyboardEvent');
-
-    if ( isChrome() ) {
-        // chrome hack
-        Object.defineProperty( event, 'keyCode', {
-                    get : function() {
-                        return this.keyCodeVal;
-                    }
-        });
-        Object.defineProperty( event, 'which', {
-                    get : function() {
-                        return this.keyCodeVal;
-                    }
-        });
-    }
-    if ( event.initKeyboardEvent ) {
-        event.initKeyboardEvent( eventType, true, true, document.defaultView, false, false, false, false, keyCode, keyCode );
-    } else {
-        event.initKeyEvent( eventType, true, true, document.defaultView, false, false, false, false, keyCode, 0 );
-    }
-    event.keyCodeVal = keyCode;
-
-    console.log("Dispatching '"+ eventType +"' event for " + keyCode );
-
-    document.dispatchEvent( event );
-}
-*/

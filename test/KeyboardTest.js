@@ -1,4 +1,5 @@
-( function() {
+(function() {
+
     "use strict";
 
     var assert = require('assert'),
@@ -629,7 +630,7 @@
             it('should return the object for chaining on success', function() {
                 var keyboard = new Keyboard(),
                     callback = function() {};
-                keyboard.on( 'a', callback )
+                keyboard.on( 'a', callback );
                 assert( keyboard === keyboard.off( 'a', callback ) );
             });
             it('should return the object for chaining on error', function() {

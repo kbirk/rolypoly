@@ -44,9 +44,9 @@ Poll input state:
 
 ```javascript
 // poll for key state
-keyboard.poll( 'a', function( upOrDown ) {
-    console.log( "a is " + a );
-})
+keyboard.poll( 'a', function( state ) {
+    console.log( "a is " + state );
+});
 keyboard.poll( ['a', 'b', 'c'], function( states ) {
     console.log( "a key is " + states.a );
     console.log( "b key is " + states.b );
@@ -78,9 +78,9 @@ Poll input state:
 
 ```javascript
 // poll for button state
-mouse.poll( 'left', function( upOrDown ) {
-    console.log( "left button is " + a );
-})
+mouse.poll( 'left', function( state ) {
+    console.log( "left button is " + state );
+});
 mouse.poll( ['left', 'middle', 'right'], function( states ) {
     console.log( "left button is " + states.left );
     console.log( "middle button is " + states.middle );

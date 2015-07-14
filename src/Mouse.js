@@ -91,14 +91,22 @@
      * Instantiates a mouse object.
      * @class Mouse
      * @classdesc A mouse input handling object.
+     *
+     * @param {String|HTMLElement} arg - The element to attach the listeners to.
      */
-    function Mouse() {
+    function Mouse( arg ) {
         this.buttons = {};
         this.mouse = {};
+        var element;
+        if ( typeof arg === "string" ) {
+            element = document.querySelector( arg );
+        } else {
+            element = arg || document;
+        }
         // generate and attach the button event handlers
-        document.addEventListener( 'mousedown', handleMouseButtonPress( this.buttons ) );
-        document.addEventListener( 'mouseup', handleMouseButtonRelease( this.buttons ) );
-        document.addEventListener( 'mousemove', handleMouseMove( this.mouse ) );
+        element.addEventListener( 'mousedown', handleMouseButtonPress( this.buttons ) );
+        element.addEventListener( 'mouseup', handleMouseButtonRelease( this.buttons ) );
+        element.addEventListener( 'mousemove', handleMouseMove( this.mouse ) );
     }
 
     /**

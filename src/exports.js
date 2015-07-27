@@ -5,7 +5,8 @@
     module.exports = {
 
         Keyboard: require('./Keyboard'),
-        Mouse: require('./Mouse')
+        Mouse: require('./Mouse'),
+        Touch: require('./Touch')
 
     };
 

@@ -3,13 +3,15 @@
     "use strict";
 
     var gulp = require('gulp'),
+        runSequence = require('run-sequence'),
         source;
 
     function bundle( b, output ) {
         source = source || require('vinyl-source-stream');
         return b.bundle()
-            .on( 'error', function( e ) {
-                console.log( e );
+            .on( 'error', function( err ) {
+                console.log( err );
+                this.emit( 'end' );
             })
             .pipe( source( output ) )
             .pipe( gulp.dest( 'build' ) );
@@ -20,8 +22,9 @@
             uglify = require('gulp-uglify');
         source = source || require('vinyl-source-stream');
         return b.bundle()
-            .on( 'error', function( e ) {
-                console.log( e );
+            .on( 'error', function( err ) {
+                console.log( err );
+                this.emit( 'end' );
             })
             .pipe( source( output ) )
             .pipe( buffer() )
@@ -83,15 +86,19 @@
             .pipe( coveralls() );
     });
 
-    gulp.task('build-min-js', [ 'clean' ], function() {
+    gulp.task('build-min-js', function() {
         return build( './src/exports.js', 'rolypoly.min.js', true );
     });
 
-    gulp.task('build-js', [ 'clean' ], function() {
+    gulp.task('build-js', function() {
         return build( './src/exports.js', 'rolypoly.js', false );
     });
 
-    gulp.task('build', [ 'build-js', 'build-min-js' ], function() {
+    gulp.task('build', function( done ) {
+        runSequence(
+            [ 'clean', 'lint' ],
+            [ 'build-js', 'build-min-js' ],
+            done );
     });
 
     gulp.task('default', [ 'build' ], function() {

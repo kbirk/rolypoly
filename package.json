@@ -1,6 +1,6 @@
 {
   "name": "rolypoly",
-  "version": "0.3.6",
+  "version": "0.4.0",
   "description": "A lightweight mouse and keyboard input library",
   "private": true,
   "author": [

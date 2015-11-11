@@ -100,10 +100,10 @@
      *
      * @param {Object} keyboard - The Keyboard object.
      * @param {String} sequenceKey - The sequence key to be added.
-     * @param {Array} events - The event types to register the callback under.
+     * @param {Array} eventTypes - The event types to register the callback under.
      * @param {Function} callback - The callback function.
      */
-    function addSequence( keyboard, sequenceKey, events, callback ) {
+    function addSequence( keyboard, sequenceKey, eventTypes, callback ) {
         var keyIds = parseSequence( sequenceKey ),
             keys = keyboard.keys,
             sequences = keyboard.sequences,
@@ -120,17 +120,17 @@
         };
         callbacks = sequences[ sequenceKey ].callbacks;
         // bind callback under the provided events
-        events.forEach( function( event ) {
-            callbacks[ event ] = callbacks[ event ] || [];
-            callbacks[ event ].push( callback );
+        eventTypes.forEach( function( eventType ) {
+            callbacks[ eventType ] = callbacks[ eventType ] || [];
+            callbacks[ eventType ].push( callback );
             // add the sequence key under each key for the event
             keyIds.forEach( function( keyId ) {
                 var key = keys[ keyId ] = keys[ keyId ] || {};
                 key.sequences = key.sequences || {};
-                key.sequences[ event ] = key.sequences[ event ] || [];
-                if ( key.sequences[ event ].indexOf( sequenceKey ) === -1 ) {
+                key.sequences[ eventType ] = key.sequences[ eventType ] || [];
+                if ( key.sequences[ eventType ].indexOf( sequenceKey ) === -1 ) {
                     // don't add duplicates
-                    key.sequences[ event ].push( sequenceKey );
+                    key.sequences[ eventType ].push( sequenceKey );
                 }
             });
         });
@@ -142,10 +142,10 @@
      *
      * @param {Object} keyboard - The Keyboard object.
      * @param {String} sequenceKey - The sequence key to be removed.
-     * @param {Array} events - The event types to unregister the callback from.
+     * @param {Array} eventTypes - The event types to unregister the callback from.
      * @param {Function} callback - The callback function.
      */
-    function removeSequence( keyboard, sequenceKey, events, callback ) {
+    function removeSequence( keyboard, sequenceKey, eventTypes, callback ) {
         var keyIds = parseSequence( sequenceKey ),
             keys = keyboard.keys,
             sequences = keyboard.sequences,
@@ -156,13 +156,13 @@
             return;
         }
         // bind callback under the provided events
-        events.forEach( function( event ) {
-            var eventCallbacks = callbacks[ event ];
+        eventTypes.forEach( function( eventType ) {
+            var eventCallbacks = callbacks[ eventType ];
             if ( eventCallbacks ) {
                 eventCallbacks.splice( eventCallbacks.indexOf( callback ), 1 );
                 // if no more callbacks for event, remove the array
                 if ( eventCallbacks.length === 0 ) {
-                    delete callbacks[ event ];
+                    delete callbacks[ eventType ];
                 }
             }
         });
@@ -170,10 +170,10 @@
         // and remove sequence from all keys
         if ( Util.isEmpty( sequence.callbacks ) ) {
             delete sequences[ sequenceKey ];
-            events.forEach( function( event ) {
+            eventTypes.forEach( function( eventType ) {
                 // if there are no more instances of the sequence, remove from keys
                 keyIds.forEach( function( keyId ) {
-                    sequences = keys[ keyId ].sequences[ event ]; // re-assigning sequences
+                    sequences = keys[ keyId ].sequences[ eventType ]; // re-assigning sequences
                     sequences.splice( sequences.indexOf( sequenceKey ), 1 );
                 });
             });
@@ -186,10 +186,10 @@
      *
      * @param {Object} keyboard - The Keyboard object.
      * @param {String} comboKey - The combination key to be added.
-     * @param {Array} events - The event types to register the callback under.
+     * @param {Array} eventTypes - The event types to register the callback under.
      * @param {Function} callback - The callback function.
      */
-    function addCombination( keyboard, comboKey, events, callback ) {
+    function addCombination( keyboard, comboKey, eventTypes, callback ) {
         var keyIds = parseCombination( comboKey ),
             keys = keyboard.keys,
             combos = keyboard.combos,
@@ -205,17 +205,17 @@
         };
         callbacks = combos[ comboKey ].callbacks;
         // bind callback under the provided events
-        events.forEach( function( event ) {
-            callbacks[ event ] = callbacks[ event ] || [];
-            callbacks[ event ].push( callback );
+        eventTypes.forEach( function( eventType ) {
+            callbacks[ eventType ] = callbacks[ eventType ] || [];
+            callbacks[ eventType ].push( callback );
             // add the combination key under each key for the event
             keyIds.forEach( function( keyId ) {
                 var key = keys[ keyId ] = keys[ keyId ] || {};
                 key.combos = key.combos || {};
-                key.combos[ event ] = key.combos[ event ]  || [];
-                if ( key.combos[ event ] .indexOf( comboKey ) === -1 ) {
+                key.combos[ eventType ] = key.combos[ eventType ]  || [];
+                if ( key.combos[ eventType ] .indexOf( comboKey ) === -1 ) {
                     // don't add duplicates
-                    key.combos[ event ].push( comboKey );
+                    key.combos[ eventType ].push( comboKey );
                 }
             });
         });
@@ -227,10 +227,10 @@
      *
      * @param {Object} keyboard - The Keyboard object.
      * @param {String} comboKey - The combination key to be removed.
-     * @param {Array} events - The event types to unregister the callback from.
+     * @param {Array} eventTypes - The event types to unregister the callback from.
      * @param {Function} callback - The callback function.
      */
-    function removeCombination( keyboard, comboKey, events, callback ) {
+    function removeCombination( keyboard, comboKey, eventTypes, callback ) {
         var keyIds = parseCombination( comboKey ),
             keys = keyboard.keys,
             combos = keyboard.combos,
@@ -241,13 +241,13 @@
             return;
         }
         // bind callback under the provided events
-        events.forEach( function( event ) {
-            var eventCallbacks = callbacks[ event ];
+        eventTypes.forEach( function( eventType ) {
+            var eventCallbacks = callbacks[ eventType ];
             if ( eventCallbacks ) {
                 eventCallbacks.splice( eventCallbacks.indexOf( callback ), 1 );
                 // if no more callbacks for event, remove the array
                 if ( eventCallbacks.length === 0 ) {
-                    delete callbacks[ event ];
+                    delete callbacks[ eventType ];
                 }
             }
         });
@@ -256,9 +256,9 @@
         if ( Util.isEmpty( combo.callbacks ) ) {
             delete combos[ comboKey ];
             // if there are no more instances of the combo, remove from keys
-            events.forEach( function( event ) {
+            eventTypes.forEach( function( eventType ) {
                 keyIds.forEach( function( keyId ) {
-                    combos = keys[ keyId ].combos[ event ]; // re-assigning combos
+                    combos = keys[ keyId ].combos[ eventType ]; // re-assigning combos
                     combos.splice( combos.indexOf( comboKey ), 1 );
                 });
             });
@@ -270,10 +270,10 @@
      *
      * @param {Object} keyboard - The Keyboard object.
      * @param {Object} keyId - The key id.
-     * @param {Array} events - The event types to register the callback under.
+     * @param {Array} eventTypes - The event types to register the callback under.
      * @param {Function} callback - The callback function.
      */
-    function addKey( keyboard, keyId, events, callback ) {
+    function addKey( keyboard, keyId, eventTypes, callback ) {
         var keys = keyboard.keys,
             key = keys[ keyId ] = keys[ keyId ] || {};
         // check input
@@ -281,10 +281,10 @@
             return;
         }
         // bind callback under the provided events
-        events.forEach( function( event ) {
+        eventTypes.forEach( function( eventType ) {
             var callbacks = key.callbacks = key.callbacks || {};
-            callbacks[ event ] = callbacks[ event ] || [];
-            callbacks[ event ].push( callback );
+            callbacks[ eventType ] = callbacks[ eventType ] || [];
+            callbacks[ eventType ].push( callback );
         });
     }
 
@@ -293,10 +293,10 @@
      *
      * @param {Object} keyboard - The Keyboard object.
      * @param {Object} keyId - The key id.
-     * @param {Array} events - The event types to unregister the callback from.
+     * @param {Array} eventTypes - The event types to unregister the callback from.
      * @param {Function} callback - The callback function.
      */
-    function removeKey( keyboard, keyId, events, callback ) {
+    function removeKey( keyboard, keyId, eventTypes, callback ) {
         var keys = keyboard.keys,
             key = keys[ keyId ] || {},
             callbacks = key.callbacks;
@@ -305,13 +305,13 @@
             return;
         }
         // bind callback under the provided events
-        events.forEach( function( event ) {
-            var eventCallbacks = callbacks[ event ];
+        eventTypes.forEach( function( eventType ) {
+            var eventCallbacks = callbacks[ eventType ];
             if ( eventCallbacks ) {
                 eventCallbacks.splice( eventCallbacks.indexOf( callback ), 1 );
                 // if no more callbacks for event, remove the array
                 if ( eventCallbacks.length === 0 ) {
-                    delete callbacks[ event ];
+                    delete callbacks[ eventType ];
                 }
             }
         });
@@ -616,23 +616,23 @@
      *
      * @param {Array|String} input - The input identification strings.
      * @param {Function} callback - The callback function.
-     * @param {Array|String} events - The key events to bind the callbacks to.
+     * @param {Array|String} eventTypes - The key events to bind the callbacks to.
      */
-    Keyboard.prototype.on = function( input, callback, events ) {
+    Keyboard.prototype.on = function( inputs, callback, eventTypes ) {
         if ( Util.checkFunctionArg( 'Keyboard.on', callback ) ) {
             return this;
         }
-        input = Util.normalizeInputArgs( 'Keyboard.on', input );
-        events = Util.normalizeEventArgs( 'Keyboard.on', events );
+        inputs = Util.normalizeInputArgs( 'Keyboard.on', inputs );
+        eventTypes = Util.normalizeEventArgs( 'Keyboard.on', eventTypes );
         // for each input, determine type and store accordingly
         var that = this;
-        input.forEach( function( entry ) {
-            if ( isSequenceInput( entry ) ) {
-                addSequence( that, entry, events, callback );
-            } else if ( isCombinationInput( entry ) ) {
-                addCombination( that, entry, events, callback );
+        inputs.forEach( function( input ) {
+            if ( isSequenceInput( input ) ) {
+                addSequence( that, input, eventTypes, callback );
+            } else if ( isCombinationInput( input ) ) {
+                addCombination( that, input, eventTypes, callback );
             } else {
-                addKey( that, entry, events, callback );
+                addKey( that, input, eventTypes, callback );
             }
         });
         return this;
@@ -644,23 +644,23 @@
      *
      * @param {Array|String} input - The input identification strings.
      * @param {Function} callback - The callback function.
-     * @param {Array|String} events - The key events to remove the callbacks from.
+     * @param {Array|String} eventTypes - The key events to remove the callbacks from.
      */
-    Keyboard.prototype.off = function( input, callback, events ) {
+    Keyboard.prototype.off = function( inputs, callback, eventTypes ) {
         if ( Util.checkFunctionArg( 'Keyboard.off', callback ) ) {
             return this;
         }
-        input = Util.normalizeInputArgs( 'Keyboard.off', input );
-        events = Util.normalizeEventArgs( 'Keyboard.off', events );
+        inputs = Util.normalizeInputArgs( 'Keyboard.off', inputs );
+        eventTypes = Util.normalizeEventArgs( 'Keyboard.off', eventTypes );
         // for each input, determine type and store accordingly
         var that = this;
-        input.forEach( function( entry ) {
-            if ( isSequenceInput( entry ) ) {
-                removeSequence( that, entry, events, callback );
-            } else if ( isCombinationInput( entry ) ) {
-                removeCombination( that, entry, events, callback );
+        inputs.forEach( function( input ) {
+            if ( isSequenceInput( input ) ) {
+                removeSequence( that, input, eventTypes, callback );
+            } else if ( isCombinationInput( input ) ) {
+                removeCombination( that, input, eventTypes, callback );
             } else {
-                removeKey( that, entry, events, callback );
+                removeKey( that, input, eventTypes, callback );
             }
         });
         return this;

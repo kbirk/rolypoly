@@ -124,33 +124,33 @@
      * Attach a listener for a set of input and events.
      * @memberof Mouse
      *
-     * @param {Array|String} input - The input identification string.
+     * @param {Array|String} inputs - The input identification strings.
      * @param {Function} callback - The callback function.
-     * @param {Array|String} events - The button events to bind the callbacks to. Optional.
+     * @param {Array|String} eventTypes - The button events to bind the callbacks to. Optional.
      */
-    Mouse.prototype.on = function( input, callback, events ) {
+    Mouse.prototype.on = function( inputs, callback, eventTypes ) {
         if ( Util.checkFunctionArg( 'Mouse.on', callback ) ) {
             return this;
         }
-        input = Util.normalizeInputArgs(
+        inputs = Util.normalizeInputArgs(
             'Mouse.on',
-            input,
+            inputs,
             [ 'left','middle','right','move','wheel' ]
         );
-        events = Util.normalizeEventArgs( 'Mouse.on', events );
         var mouse = this.mouse,
             buttons = this.buttons;
-        input.forEach( function( entry ) {
-            if ( entry === "move" || entry === "wheel" ) {
+        inputs.forEach( function( input ) {
+            if ( input === "move" || input === "wheel" ) {
                 mouse.callbacks = mouse.callbacks || {};
-                mouse.callbacks[ entry ] = mouse.callbacks[ entry ] || [];
-                mouse.callbacks[ entry ].push( callback );
+                mouse.callbacks[ input ] = mouse.callbacks[ input ] || [];
+                mouse.callbacks[ input ].push( callback );
             } else {
-                var button = buttons[ entry ] = buttons[ entry ] || {};
-                events.forEach( function( event ) {
+                var button = buttons[ input ] = buttons[ input ] || {};
+                eventTypes = Util.normalizeEventArgs( 'Mouse.on', eventTypes );
+                eventTypes.forEach( function( eventType ) {
                     button.callbacks = button.callbacks || {};
-                    button.callbacks[ event ] = button.callbacks[ event ] || [];
-                    button.callbacks[ event ].push( callback );
+                    button.callbacks[ eventType ] = button.callbacks[ eventType ] || [];
+                    button.callbacks[ eventType ].push( callback );
                 });
             }
         });
@@ -161,31 +161,31 @@
      * Remove a listener for a set of input and events.
      * @memberof Mouse
      *
-     * @param {Array|String} input - The input identification string.
+     * @param {Array|String} inputs - The input identification strings.
      * @param {Function} callback - The callback function.
-     * @param {Array|String} events - The button events to remove the callbacks from. Optional.
+     * @param {Array|String} eventTypes - The button events to remove the callbacks from. Optional.
      */
-    Mouse.prototype.off = function( input, callback, events ) {
+    Mouse.prototype.off = function( inputs, callback, eventTypes ) {
         if ( Util.checkFunctionArg( 'Mouse.off', callback ) ) {
             return this;
         }
-        input = Util.normalizeInputArgs(
+        inputs = Util.normalizeInputArgs(
             'Mouse.off',
-            input, [ 'left','middle','right','move','wheel' ]
+            inputs, [ 'left','middle','right','move','wheel' ]
         );
-        events = Util.normalizeEventArgs( 'Mouse.off', events );
         var mouse = this.mouse,
             buttons = this.buttons;
-        input.forEach( function( entry ) {
-            if ( entry === "move" || entry === "wheel" ) {
-                if ( mouse.callbacks && mouse.callbacks[ entry ] ) {
-                    mouse.callbacks[ entry ].splice( mouse.callbacks[ entry ].indexOf( callback ) );
+        inputs.forEach( function( input ) {
+            if ( input === "move" || input === "wheel" ) {
+                if ( mouse.callbacks && mouse.callbacks[ input ] ) {
+                    mouse.callbacks[ input ].splice( mouse.callbacks[ input ].indexOf( callback ) );
                 }
             } else {
-                var button = buttons[ entry ] = buttons[ entry ] || {};
-                events.forEach( function( event ) {
-                    if ( button.callbacks && button.callbacks[ event ] ) {
-                        button.callbacks[ event ].splice( button.callbacks[ event ].indexOf( callback ) );
+                var button = buttons[ input ] = buttons[ input ] || {};
+                eventTypes = Util.normalizeEventArgs( 'Mouse.off', eventTypes );
+                eventTypes.forEach( function( eventType ) {
+                    if ( button.callbacks && button.callbacks[ eventType ] ) {
+                        button.callbacks[ eventType ].splice( button.callbacks[ eventType ].indexOf( callback ) );
                     }
                 });
             }

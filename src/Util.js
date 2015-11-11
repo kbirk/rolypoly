@@ -76,22 +76,22 @@
          *
          * @returns {Array} The array of normalized input.
          */
-        normalizeEventArgs: function( functionName, events ) {
+        normalizeEventArgs: function( functionName, eventTypes ) {
             var that = this,
                 normalizedEvents = [];
-            if ( !events ) {
-                events = [ 'press' ];
+            if ( !eventTypes ) {
+                eventTypes = [ 'press' ];
             }
-            if ( !( events instanceof Array ) ) {
-                events = [ events ];
+            if ( !( eventTypes instanceof Array ) ) {
+                eventTypes = [ eventTypes ];
             }
-            events.forEach( function( event ) {
-                if ( event !== 'press' &&
-                    event !== 'release' ) {
+            eventTypes.forEach( function( eventType ) {
+                if ( eventType !== 'press' &&
+                    eventType !== 'release' ) {
                     // event is not recognized
-                    console.log( "Argument '"+event+"' to '"+functionName+"' is not a recognized event type, argument removed." );
+                    console.log( "Argument '"+eventType+"' to '"+functionName+"' is not a recognized event type, argument removed." );
                 } else {
-                    normalizedEvents.push( that.normalizeString( event ) );
+                    normalizedEvents.push( that.normalizeString( eventType ) );
                 }
             });
             return normalizedEvents;

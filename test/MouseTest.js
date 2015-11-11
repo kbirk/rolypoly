@@ -1,5 +1,5 @@
 (function() {
-    
+
     "use strict";
 
     var assert = require('assert'),
@@ -15,6 +15,28 @@
     });
 
     describe('Mouse', function() {
+
+        it('should take an optional DOMElement as an element', function() {
+            TestUtil.mockFakeElement();
+            var elem = {
+                addEventListener: function() {}
+            };
+            var mouse = new Mouse( elem );
+            assert( mouse.element === elem );
+            TestUtil.unmockFakeElement();
+        });
+
+        it('should take an optional selector as an element', function() {
+            TestUtil.mockFakeElement();
+            var mouse = new Mouse( ".fake-element" );
+            assert( mouse.element === global.fakeElement );
+            TestUtil.unmockFakeElement();
+        });
+
+        it('should attached event listeners to the document by default', function() {
+            var mouse = new Mouse();
+            assert( mouse.element === document );
+        });
 
         it('should only accept "press" and "release" button events', function() {
             var mouse = new Mouse();
@@ -62,6 +84,17 @@
             document.trigger( 'mousemove', { clientX: 50, clientY: 60 } );
             document.trigger( 'mousemove', { clientX: 55, clientY: 65 } );
             assert( previous.x === 50 && previous.y === 60 );
+        });
+
+        it('should only accept "wheel" event', function() {
+            var mouse = new Mouse();
+            var y = 0;
+            mouse.on( 'wheel', function( event ) {
+                y += event.deltaY;
+            });
+            document.trigger( 'wheel', { deltaY: 3 } );
+            console.log( y );
+            assert( y > 0 );
         });
 
         it('should only trigger a "move" if the mouse position changes', function() {

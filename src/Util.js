@@ -45,27 +45,27 @@
          *
          * @returns {Array} The array of normalized input.
          */
-        normalizeInputArgs: function( functionName, input, validInput ) {
-            var normalizedInputs = [],
-                i;
-            if ( !( input instanceof Array ) ) {
-                input = [ input ];
+        normalizeInputArgs: function( functionName, inputs, validInput ) {
+            var that = this,
+                normalizedInputs = [];
+            if ( !( inputs instanceof Array ) ) {
+                inputs = [ inputs ];
             }
-            for ( i=0; i<input.length; i++ ) {
-                if ( typeof input[i] !== 'string' ) {
+            inputs.forEach( function( input ) {
+                if ( typeof input !== 'string' ) {
                     // input is not a string
-                    console.log( "Argument '"+input[i]+"' to '"+functionName+"' is not of type 'string', argument removed." );
-                    continue;
+                    console.log( "Argument '"+input+"' to '"+functionName+"' is not of type 'string', argument removed." );
+                    return;
                 }
                 if ( validInput ) {
-                    if ( validInput.indexOf( input[i] ) === -1 ) {
+                    if ( validInput.indexOf( input ) === -1 ) {
                         // input is not recognized
-                        console.log( "Argument '"+input[i]+"' to '"+functionName+"' is not a recognized input type, argument removed." );
-                        continue;
+                        console.log( "Argument '"+input+"' to '"+functionName+"' is not a recognized input type, argument removed." );
+                        return;
                     }
                 }
-                normalizedInputs.push( this.normalizeString( input[i] ) );
-            }
+                normalizedInputs.push( that.normalizeString( input ) );
+            });
             return normalizedInputs;
         },
 
@@ -77,23 +77,24 @@
          * @returns {Array} The array of normalized input.
          */
         normalizeEventArgs: function( functionName, events ) {
-            var i;
+            var that = this,
+                normalizedEvents = [];
             if ( !events ) {
                 events = [ 'press' ];
             }
             if ( !( events instanceof Array ) ) {
                 events = [ events ];
             }
-            for ( i=0; i<events.length; i++ ) {
-                if ( events[i] !== 'press' &&
-                    events[i] !== 'release' ) {
+            events.forEach( function( event ) {
+                if ( event !== 'press' &&
+                    event !== 'release' ) {
                     // event is not recognized
-                    console.log( "Argument '"+events[i]+"' to '"+functionName+"' is not a recognized event type, argument removed." );
+                    console.log( "Argument '"+event+"' to '"+functionName+"' is not a recognized event type, argument removed." );
                 } else {
-                    events[i] = this.normalizeString( events[i] );
+                    normalizedEvents.push( that.normalizeString( event ) );
                 }
-            }
-            return events;
+            });
+            return normalizedEvents;
         },
 
         /**
@@ -105,14 +106,12 @@
          * @param {Event} event - The native event object.
          */
         executeCallbacks: function( callbacks, eventType, event ) {
-            var i;
             if ( !callbacks || !callbacks[ eventType ] ) {
                 return;
             }
-            callbacks = callbacks[ eventType ];
-            for ( i=0; i<callbacks.length; i++ ) {
-                callbacks[i]( event );
-            }
+            callbacks[ eventType ].forEach( function( callback ) {
+                callback( event );
+            });
         },
 
         /**
@@ -135,13 +134,7 @@
          * @returns {boolean} true if the object has keys, false if not.
          */
         isEmpty: function( obj ) {
-            var key;
-            for ( key in obj ) {
-                if ( obj.hasOwnProperty( key ) ) {
-                    return false;
-                }
-            }
-            return true;
+            return Object.keys( obj ).length === 0;
         }
 
     };

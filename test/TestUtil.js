@@ -7,6 +7,16 @@
 
     module.exports = {
 
+        mockFakeElement: function() {
+            global.fakeElement = {
+                addEventListener: function() {}
+            };
+        },
+
+        unmockFakeElement: function() {
+            delete global.fakeElement;
+        },
+
         mockDocument: function() {
             if ( !_document ) {
                 _document = global.document;
@@ -28,8 +38,11 @@
                                 }
                             }
                         } else {
-                            console.log( "no listener for " + eventType );
+                            console.log( "No listener for " + eventType );
                         }
+                    },
+                    querySelector: function() {
+                        return global.fakeElement;
                     }
                 };
             }

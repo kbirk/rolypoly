@@ -20,14 +20,15 @@
      * @returns {boolean} Whether or not the key ids are valid.
      */
     function checkKeyIds( functionName, keyIds ) {
-        var i;
-        for ( i=0; i<keyIds.length; i++ ) {
-            if ( !Keys[ keyIds[i] ] ) {
-                console.log( "Argument '"+keyIds[i]+"' to '"+functionName+"' is not a recognized event type, command ignored." );
-                return true;
+        var err = false;
+        keyIds.forEach( function( keyId ) {
+            if ( !Keys[ keyId ] ) {
+                console.log( "Argument '" + keyId + "' to '" + functionName +
+                    "' is not a recognized event type, command ignored." );
+                err = true;
             }
-        }
-        return false;
+        });
+        return err;
     }
 
     /**
@@ -72,22 +73,21 @@
      */
     function parseCombination( comboKey ) {
         var temp = comboKey.split(/\+\+\+|\+\+/),
-            result = [],
-            i;
+            result = [];
         // my lack of regex knowledge is shameful
         if ( temp.length > 1 ) {
-            for ( i=0; i<temp.length; i++ ) {
-                if ( temp[i].length === 0 ) {
+            temp.forEach( function( t, i ) {
+                if ( t.length === 0 ) {
                     if ( i === 0 ) {
                         result.push( '+' );
                     }
                 } else {
-                    result = result.concat( temp[i].split('+') );
+                    result = result.concat( t.split('+') );
                     if ( i !== temp.length-1 ) {
                         result.push( '+' );
                     }
                 }
-            }
+            });
         } else {
             result = comboKey.split('+');
         }
@@ -107,10 +107,7 @@
         var keyIds = parseSequence( sequenceKey ),
             keys = keyboard.keys,
             sequences = keyboard.sequences,
-            sequence,
-            event,
-            keyId,
-            i;
+            callbacks;
         // check input
         if ( checkKeyIds( 'Keyboard.on', keyIds ) ) {
             return;
@@ -121,24 +118,22 @@
             lastKey: keyIds[ keyIds.length - 1], // store the last key of the sequence
             callbacks: {}
         };
-        sequence = sequences[ sequenceKey ];
+        callbacks = sequences[ sequenceKey ].callbacks;
         // bind callback under the provided events
-        for ( i=0; i<events.length; i++ ) {
-            event = events[i];
-            sequence.callbacks[ event ] = sequence.callbacks[ event ] || [];
-            sequence.callbacks[ event ].push( callback );
+        events.forEach( function( event ) {
+            callbacks[ event ] = callbacks[ event ] || [];
+            callbacks[ event ].push( callback );
             // add the sequence key under each key for the event
-            for ( i=0; i<keyIds.length; i++ ) {
-                keyId = keyIds[i];
-                keys[ keyId ] = keys[ keyId ] || {};
-                keys[ keyId ].sequences = keys[ keyId ].sequences || {};
-                keys[ keyId ].sequences[ event ] = keys[ keyId ].sequences[ event ] || [];
-                if ( keys[ keyId ].sequences[ event ].indexOf( sequenceKey ) === -1 ) {
+            keyIds.forEach( function( keyId ) {
+                var key = keys[ keyId ] = keys[ keyId ] || {};
+                key.sequences = key.sequences || {};
+                key.sequences[ event ] = key.sequences[ event ] || [];
+                if ( key.sequences[ event ].indexOf( sequenceKey ) === -1 ) {
                     // don't add duplicates
-                    keys[ keyId ].sequences[ event ].push( sequenceKey );
+                    key.sequences[ event ].push( sequenceKey );
                 }
-            }
-        }
+            });
+        });
     }
 
     /**
@@ -154,44 +149,34 @@
         var keyIds = parseSequence( sequenceKey ),
             keys = keyboard.keys,
             sequences = keyboard.sequences,
-            sequence = sequences[ sequenceKey ],
-            callbacks,
-            event,
-            keyId,
-            i;
-        // check input
-        if ( checkKeyIds( 'Keyboard.off', keyIds ) ) {
-            return;
-        }
-        // exit early if entry doesnt even exist for sequence
-        if ( !sequence ) {
+            sequence = sequences[ sequenceKey ] || {},
+            callbacks = sequence.callbacks;
+        // exit early if callbacks don't exist for sequence
+        if ( !callbacks ) {
             return;
         }
         // bind callback under the provided events
-        for ( i=0; i<events.length; i++ ) {
-            event = events[i];
-            callbacks = sequence.callbacks;
-            if ( callbacks && callbacks[ event ] ) {
-                callbacks[ event ].splice( callbacks[ event ].indexOf( callback ), 1 );
+        events.forEach( function( event ) {
+            var eventCallbacks = callbacks[ event ];
+            if ( eventCallbacks ) {
+                eventCallbacks.splice( eventCallbacks.indexOf( callback ), 1 );
                 // if no more callbacks for event, remove the array
-                if ( callbacks[ event ].length === 0 ) {
+                if ( eventCallbacks.length === 0 ) {
                     delete callbacks[ event ];
                 }
             }
-        }
+        });
         // if no more callbacks for the sequence, delete the sequence
         // and remove sequence from all keys
         if ( Util.isEmpty( sequence.callbacks ) ) {
             delete sequences[ sequenceKey ];
-            for ( i=0; i<events.length; i++ ) {
-                event = events[i];
+            events.forEach( function( event ) {
                 // if there are no more instances of the sequence, remove from keys
-                for ( i=0; i<keyIds.length; i++ ) {
-                    keyId = keyIds[i];
+                keyIds.forEach( function( keyId ) {
                     sequences = keys[ keyId ].sequences[ event ]; // re-assigning sequences
                     sequences.splice( sequences.indexOf( sequenceKey ), 1 );
-                }
-            }
+                });
+            });
         }
     }
 
@@ -208,10 +193,7 @@
         var keyIds = parseCombination( comboKey ),
             keys = keyboard.keys,
             combos = keyboard.combos,
-            combo,
-            event,
-            keyId,
-            i;
+            callbacks;
         // check input
         if ( checkKeyIds( 'Keyboard.on', keyIds ) ) {
             return;
@@ -221,25 +203,22 @@
             keys: keyIds,
             callbacks: {}
         };
-        combo = combos[ comboKey ];
+        callbacks = combos[ comboKey ].callbacks;
         // bind callback under the provided events
-        for ( i=0; i<events.length; i++ ) {
-            event = events[i];
-            combo.callbacks[ event ] = combo.callbacks[ event ] || [];
-            combo.callbacks[ event ].push( callback );
+        events.forEach( function( event ) {
+            callbacks[ event ] = callbacks[ event ] || [];
+            callbacks[ event ].push( callback );
             // add the combination key under each key for the event
-            for ( i=0; i<keyIds.length; i++ ) {
-                keyId = keyIds[i];
-                keys[ keyId ] = keys[ keyId ] || {};
-                keys[ keyId ].combos = keys[ keyId ].combos || {};
-                keys[ keyId ].combos[ event ] = keys[ keyId ].combos[ event ]  || [];
-                if ( keys[ keyId ].combos[ event ] .indexOf( comboKey ) === -1 ) {
+            keyIds.forEach( function( keyId ) {
+                var key = keys[ keyId ] = keys[ keyId ] || {};
+                key.combos = key.combos || {};
+                key.combos[ event ] = key.combos[ event ]  || [];
+                if ( key.combos[ event ] .indexOf( comboKey ) === -1 ) {
                     // don't add duplicates
-                    keys[ keyId ].combos[ event ].push( comboKey );
+                    key.combos[ event ].push( comboKey );
                 }
-            }
-        }
-
+            });
+        });
     }
 
     /**
@@ -255,44 +234,34 @@
         var keyIds = parseCombination( comboKey ),
             keys = keyboard.keys,
             combos = keyboard.combos,
-            combo = combos[ comboKey ],
-            callbacks,
-            event,
-            keyId,
-            i;
-        // check input
-        if ( checkKeyIds( 'Keyboard.off', keyIds ) ) {
-            return;
-        }
+            combo = combos[ comboKey ] || {},
+            callbacks = combo.callbacks;
         // exit early if entry doesnt even exist for combo
-        if ( !combo ) {
+        if ( !callbacks ) {
             return;
         }
         // bind callback under the provided events
-        for ( i=0; i<events.length; i++ ) {
-            event = events[i];
-            callbacks = combo.callbacks;
-            if ( callbacks && callbacks[ event ] ) {
-                callbacks[ event ].splice( callbacks[ event ].indexOf( callback ), 1 );
+        events.forEach( function( event ) {
+            var eventCallbacks = callbacks[ event ];
+            if ( eventCallbacks ) {
+                eventCallbacks.splice( eventCallbacks.indexOf( callback ), 1 );
                 // if no more callbacks for event, remove the array
-                if ( callbacks[ event ].length === 0 ) {
+                if ( eventCallbacks.length === 0 ) {
                     delete callbacks[ event ];
                 }
             }
-        }
+        });
         // if no more callbacks for the combo, delete the combo
         // and remove combo from all keys
         if ( Util.isEmpty( combo.callbacks ) ) {
             delete combos[ comboKey ];
             // if there are no more instances of the combo, remove from keys
-            for ( i=0; i<events.length; i++ ) {
-                event = events[i];
-                for ( i=0; i<keyIds.length; i++ ) {
-                    keyId = keyIds[i];
+            events.forEach( function( event ) {
+                keyIds.forEach( function( keyId ) {
                     combos = keys[ keyId ].combos[ event ]; // re-assigning combos
                     combos.splice( combos.indexOf( comboKey ), 1 );
-                }
-            }
+                });
+            });
         }
     }
 
@@ -306,20 +275,17 @@
      */
     function addKey( keyboard, keyId, events, callback ) {
         var keys = keyboard.keys,
-            key = keys[ keyId ] = keys[ keyId ] || {},
-            event,
-            i;
+            key = keys[ keyId ] = keys[ keyId ] || {};
         // check input
         if ( checkKeyIds( 'Keyboard.on', [ keyId ] ) ) {
             return;
         }
         // bind callback under the provided events
-        for ( i=0; i<events.length; i++ ) {
-            event = events[i];
-            key.callbacks = key.callbacks || {};
-            key.callbacks[ event ] = key.callbacks[ event ] || [];
-            key.callbacks[ event ].push( callback );
-        }
+        events.forEach( function( event ) {
+            var callbacks = key.callbacks = key.callbacks || {};
+            callbacks[ event ] = callbacks[ event ] || [];
+            callbacks[ event ].push( callback );
+        });
     }
 
     /**
@@ -332,30 +298,23 @@
      */
     function removeKey( keyboard, keyId, events, callback ) {
         var keys = keyboard.keys,
-            key = keys[ keyId ],
-            callbacks,
-            event,
-            i;
-        // check input
-        if ( checkKeyIds( 'Keyboard.off', [ keyId ] ) ) {
-            return;
-        }
+            key = keys[ keyId ] || {},
+            callbacks = key.callbacks;
         // exit early if entry doesnt even exist for key
-        if ( !key ) {
+        if ( !callbacks ) {
             return;
         }
         // bind callback under the provided events
-        for ( i=0; i<events.length; i++ ) {
-            event = events[i];
-            callbacks = key.callbacks;
-            if ( callbacks && callbacks[ event ] ) {
-                callbacks[ event ].splice( callbacks[ event ].indexOf( callback ), 1 );
+        events.forEach( function( event ) {
+            var eventCallbacks = callbacks[ event ];
+            if ( eventCallbacks ) {
+                eventCallbacks.splice( eventCallbacks.indexOf( callback ), 1 );
                 // if no more callbacks for event, remove the array
-                if ( callbacks[ event ].length === 0 ) {
+                if ( eventCallbacks.length === 0 ) {
                     delete callbacks[ event ];
                 }
             }
-        }
+        });
     }
 
     /**
@@ -375,15 +334,11 @@
             i;
         // for each key in the combo
         for ( i=0; i<keyIds.length; i++ ) {
+            // key is guarenteed to exist if the combo exists
             key = keys[ keyIds[i] ];
-            // if the key does not have a state, the combo fails
-            if ( !key ) {
-                return false;
-            }
             // a "release" combo can only be triggered if the keys had all
             // been down together at one point
-            if ( eventType === "release" &&
-                 ( !combo.pressed || key.state !== "up" ) ) {
+            if ( eventType === "release" && ( !combo.pressed || key.state !== "up" ) ) {
                 return false;
             }
             // a "press" combo only needs all keys to be down together
@@ -391,10 +346,11 @@
                 return false;
             }
         }
+        // combo is successful, flag so it doesn't spam when held
         if ( eventType === "press" ) {
             // flag that all keys have been down
             combo.pressed = true;
-        } else if ( eventType === "release" ) {
+        } else {
             // clear the flag
             delete combo.pressed;
         }
@@ -411,51 +367,51 @@
      * @param {KeyboardEvent} event - The KeyboardEvent object.
      */
     function checkCombos( keyboard, key, eventType, event ) {
-        var combos = keyboard.combos,
-            combo,
-            i;
-        if ( key.combos ) {
-            // release combination events require press combination events to
-            // be tracked, therefore if a press event occurs that is part of a
-            // combination it MUST be processed, regardless if there is a
-            // callback.
-            if ( eventType === "press" ) {
-                // process the press callbacks
-                if ( key.combos.press ) {
-                    // for every combo in the key
-                    for ( i=0; i<key.combos.press.length; i++ ) {
-                        combo = combos[ key.combos.press[i] ];
-                        if ( isComboSatisfied( keyboard, combo, "press" ) ) {
-                            // all keys in combo satisfy conditions, execute callbacks
-                            Util.executeCallbacks( combo.callbacks, "press", event );
-                        }
+        var combos = keyboard.combos;
+        if ( !key.combos ) {
+            return;
+        }
+        // release combination events require press combination events to
+        // be tracked, therefore if a press event occurs that is part of a
+        // combination it MUST be processed, regardless if there is a
+        // callback.
+        if ( eventType === "press" ) {
+            // process the press callbacks
+            if ( key.combos.press ) {
+                // for every combo in the key
+                key.combos.press.forEach( function( press ) {
+                    var combo = combos[ press ];
+                    if ( isComboSatisfied( keyboard, combo, "press" ) ) {
+                        // all keys in combo satisfy conditions, execute callbacks
+                        Util.executeCallbacks( combo.callbacks, "press", event );
                     }
-                }
-                // process the release callbacks, ignore callbacks as this isn't
-                // a release event but is required for release events
-                if ( key.combos.release ) {
-                    // process release events to flag they have been pressed prior
-                    // for every combo in the key
-                    for ( i=0; i<key.combos.release.length; i++ ) {
-                        combo = combos[ key.combos.release[i] ];
-                        // process combo but don't execute any callbacks
-                        isComboSatisfied( keyboard, combo, "press" );
+                });
+            }
+            // process the release callbacks, ignore callbacks as this isn't
+            // a release event but is required for release events
+            if ( key.combos.release ) {
+                // process release events to flag they have been pressed prior
+                // for every combo in the key
+                key.combos.release.forEach( function( release ) {
+                    var combo = combos[ release ];
+                    // process combo but don't execute any callbacks
+                    isComboSatisfied( keyboard, combo, "press" );
+                });
+            }
+        } else {
+            // process the release callbacks
+            if ( key.combos.release ) {
+                // for every combo in the key
+                key.combos.release.forEach( function( release ) {
+                    var combo = combos[ release ];
+                    if ( isComboSatisfied( keyboard, combo, "release" ) ) {
+                        // all keys in combo satisfy conditions, execute callbacks
+                        Util.executeCallbacks( combo.callbacks, "release", event );
                     }
-                }
-            } else {
-                // process the release callbacks
-                if ( key.combos.release ) {
-                    // for every combo in the key
-                    for ( i=0; i<key.combos.release.length; i++ ) {
-                        combo = combos[ key.combos.release[i] ];
-                        if ( isComboSatisfied( keyboard, combo, "release" ) ) {
-                            // all keys in combo satisfy conditions, execute callbacks
-                            Util.executeCallbacks( combo.callbacks, "release", event );
-                        }
-                    }
-                }
+                });
             }
         }
+
     }
 
     /**
@@ -525,9 +481,7 @@
      */
     function checkSequences( keyboard, key, keyId, eventType, event ) {
         var sequences = keyboard.sequences,
-            sequence,
-            history,
-            i;
+            history;
         if ( key.sequences && key.sequences[eventType] ) {
             if ( eventType === "press" ) {
                 history = keyboard.pressHistory;
@@ -535,15 +489,15 @@
                 history = keyboard.releaseHistory;
             }
             // for every sequence in the key
-            for ( i=0; i<key.sequences[eventType].length; i++ ) {
-                sequence = sequences[ key.sequences[eventType][i] ];
+            key.sequences[eventType].forEach( function( seqKey ) {
+                var sequence = sequences[ seqKey ];
                 // only check sequence if this key is the LAST KEY
                 if ( sequence.lastKey === keyId &&
                      isSequenceSatisfied( history, sequence.keys ) ) {
                     // all keys in sequence satisfy conditions, execute callbacks
                     Util.executeCallbacks( sequence.callbacks, eventType, event );
                 }
-            }
+            });
         }
     }
 
@@ -557,7 +511,7 @@
      */
     function getKeyboardKeyId( event ) {
         var charCode = event.charCode || event.keyCode;
-        return KeyMap[ charCode ] || charCode;
+        return KeyMap[ charCode ];
     }
 
     /**
@@ -591,6 +545,10 @@
             var keyId = getKeyboardKeyId( event ),
                 keys = keyboard.keys,
                 key;
+            if ( !keyId ) {
+                // key is not recognized
+                return;
+            }
             keyId = shiftKeyId( keys, keyId );
             key = keys[ keyId ] = keys[ keyId ] || {};
             key.state = "down";
@@ -661,24 +619,22 @@
      * @param {Array|String} events - The key events to bind the callbacks to.
      */
     Keyboard.prototype.on = function( input, callback, events ) {
-        var entry,
-            i;
         if ( Util.checkFunctionArg( 'Keyboard.on', callback ) ) {
             return this;
         }
         input = Util.normalizeInputArgs( 'Keyboard.on', input );
         events = Util.normalizeEventArgs( 'Keyboard.on', events );
         // for each input, determine type and store accordingly
-        for ( i=0; i<input.length; i++ ) {
-            entry = input[i];
+        var that = this;
+        input.forEach( function( entry ) {
             if ( isSequenceInput( entry ) ) {
-                addSequence( this, entry, events, callback );
+                addSequence( that, entry, events, callback );
             } else if ( isCombinationInput( entry ) ) {
-                addCombination( this, entry, events, callback );
+                addCombination( that, entry, events, callback );
             } else {
-                addKey( this, entry, events, callback );
+                addKey( that, entry, events, callback );
             }
-        }
+        });
         return this;
     };
 
@@ -691,24 +647,22 @@
      * @param {Array|String} events - The key events to remove the callbacks from.
      */
     Keyboard.prototype.off = function( input, callback, events ) {
-        var entry,
-            i;
         if ( Util.checkFunctionArg( 'Keyboard.off', callback ) ) {
             return this;
         }
         input = Util.normalizeInputArgs( 'Keyboard.off', input );
         events = Util.normalizeEventArgs( 'Keyboard.off', events );
         // for each input, determine type and store accordingly
-        for ( i=0; i<input.length; i++ ) {
-            entry = input[i];
+        var that = this;
+        input.forEach( function( entry ) {
             if ( isSequenceInput( entry ) ) {
-                removeSequence( this, entry, events, callback );
+                removeSequence( that, entry, events, callback );
             } else if ( isCombinationInput( entry ) ) {
-                removeCombination( this, entry, events, callback );
+                removeCombination( that, entry, events, callback );
             } else {
-                removeKey( this, entry, events, callback );
+                removeKey( that, entry, events, callback );
             }
-        }
+        });
         return this;
     };
 
@@ -718,24 +672,17 @@
      *
      * @param {Array|String} keyIds - The key identification strings.
      *
-     * @returns {Array} The state of the provided keys.
+     * @returns {Object} The state of the provided keys.
      */
     Keyboard.prototype.poll = function( keyIds ) {
-        var states = {},
-            keyId,
-            key,
-            i;
+        var keys = this.keys,
+            states = {};
         keyIds = Util.normalizeInputArgs( 'Keyboard.poll', keyIds );
-        if ( keyIds.length === 1 ) {
-            key = this.keys[ keyIds[0] ];
-            return key ? key.state : 'up';
-        }
-        for ( i=0; i<keyIds.length; i++ ) {
-            keyId = keyIds[i];
-            key = this.keys[ keyId ];
-            states[ keyId ] = key ? key.state : 'up' ;
-        }
-        return states;
+        keyIds.forEach( function( keyId ) {
+            var key = keys[ keyId ];
+            states[ keyId ] = key ? key.state : 'up';
+        });
+        return keyIds.length === 1 ? states[ keyIds[0] ] : states;
     };
 
     module.exports = Keyboard;

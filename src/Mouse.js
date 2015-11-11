@@ -88,6 +88,17 @@
     }
 
     /**
+     * Returns a function to handle mouse wheel wheel events.
+     *
+     * @param {Object} mouse - The mouse information object.
+     */
+    function handleMouseWheel( mouse ) {
+        return function( event ) {
+            Util.executeCallbacks( mouse.callbacks, "wheel", event );
+        };
+    }
+
+    /**
      * Instantiates a mouse object.
      * @class Mouse
      * @classdesc A mouse input handling object.
@@ -97,16 +108,16 @@
     function Mouse( arg ) {
         this.buttons = {};
         this.mouse = {};
-        var element;
         if ( typeof arg === "string" ) {
-            element = document.querySelector( arg );
+            this.element = document.querySelector( arg );
         } else {
-            element = arg || document;
+            this.element = arg || document;
         }
         // generate and attach the button event handlers
-        element.addEventListener( 'mousedown', handleMouseButtonPress( this.buttons ) );
-        element.addEventListener( 'mouseup', handleMouseButtonRelease( this.buttons ) );
-        element.addEventListener( 'mousemove', handleMouseMove( this.mouse ) );
+        this.element.addEventListener( 'mousedown', handleMouseButtonPress( this.buttons ) );
+        this.element.addEventListener( 'mouseup', handleMouseButtonRelease( this.buttons ) );
+        this.element.addEventListener( 'mousemove', handleMouseMove( this.mouse ) );
+        this.element.addEventListener( 'wheel', handleMouseWheel( this.mouse ) );
     }
 
     /**
@@ -118,35 +129,31 @@
      * @param {Array|String} events - The button events to bind the callbacks to. Optional.
      */
     Mouse.prototype.on = function( input, callback, events ) {
-        var button,
-            mouse,
-            event,
-            entry,
-            i,
-            j;
         if ( Util.checkFunctionArg( 'Mouse.on', callback ) ) {
             return this;
         }
-        input = Util.normalizeInputArgs( 'Mouse.on',
-            input, [ 'left','middle','right','move' ] );
+        input = Util.normalizeInputArgs(
+            'Mouse.on',
+            input,
+            [ 'left','middle','right','move','wheel' ]
+        );
         events = Util.normalizeEventArgs( 'Mouse.on', events );
-        for ( i=0; i<input.length; i++ ) {
-            entry = input[i];
-            if ( entry === "move" ) {
-                mouse = this.mouse;
+        var mouse = this.mouse,
+            buttons = this.buttons;
+        input.forEach( function( entry ) {
+            if ( entry === "move" || entry === "wheel" ) {
                 mouse.callbacks = mouse.callbacks || {};
-                mouse.callbacks.move = mouse.callbacks.move || [];
-                mouse.callbacks.move.push( callback );
+                mouse.callbacks[ entry ] = mouse.callbacks[ entry ] || [];
+                mouse.callbacks[ entry ].push( callback );
             } else {
-                button = this.buttons[ entry ] = this.buttons[ entry ] || {};
-                for ( j=0; j<events.length; j++ ) {
-                    event = events[j];
+                var button = buttons[ entry ] = buttons[ entry ] || {};
+                events.forEach( function( event ) {
                     button.callbacks = button.callbacks || {};
                     button.callbacks[ event ] = button.callbacks[ event ] || [];
                     button.callbacks[ event ].push( callback );
-                }
+                });
             }
-        }
+        });
         return this;
     };
 
@@ -159,35 +166,30 @@
      * @param {Array|String} events - The button events to remove the callbacks from. Optional.
      */
     Mouse.prototype.off = function( input, callback, events ) {
-        var button,
-            mouse,
-            event,
-            entry,
-            i,
-            j;
         if ( Util.checkFunctionArg( 'Mouse.off', callback ) ) {
             return this;
         }
-        input = Util.normalizeInputArgs( 'Mouse.off',
-            input, [ 'left','middle','right','move' ] );
+        input = Util.normalizeInputArgs(
+            'Mouse.off',
+            input, [ 'left','middle','right','move','wheel' ]
+        );
         events = Util.normalizeEventArgs( 'Mouse.off', events );
-        for ( i=0; i<input.length; i++ ) {
-            entry = input[i];
-            if ( entry === "move" ) {
-                mouse = this.mouse;
-                if ( mouse.callbacks && mouse.callbacks.move ) {
-                    mouse.callbacks.move.splice( mouse.callbacks.move.indexOf( callback ) );
+        var mouse = this.mouse,
+            buttons = this.buttons;
+        input.forEach( function( entry ) {
+            if ( entry === "move" || entry === "wheel" ) {
+                if ( mouse.callbacks && mouse.callbacks[ entry ] ) {
+                    mouse.callbacks[ entry ].splice( mouse.callbacks[ entry ].indexOf( callback ) );
                 }
             } else {
-                button = this.buttons[ entry ] = this.buttons[ entry ] || {};
-                for ( j=0; j<events.length; j++ ) {
-                    event = events[j];
+                var button = buttons[ entry ] = buttons[ entry ] || {};
+                events.forEach( function( event ) {
                     if ( button.callbacks && button.callbacks[ event ] ) {
                         button.callbacks[ event ].splice( button.callbacks[ event ].indexOf( callback ) );
                     }
-                }
+                });
             }
-        }
+        });
         return this;
     };
 
@@ -200,21 +202,18 @@
      * @returns {Array} The state of the provided buttons.
      */
     Mouse.prototype.poll = function( buttonIds ) {
-        var states = {},
-            buttonId,
-            button,
-            i;
-        buttonIds = Util.normalizeInputArgs( 'Mouse.poll', buttonIds, [ 'left', 'middle', 'right' ] );
-        if ( buttonIds.length === 1 ) {
-            button = this.buttons[ buttonIds[0] ];
-            return button ? button.state : 'up';
-        }
-        for ( i=0; i<buttonIds.length; i++ ) {
-            buttonId = buttonIds[i];
-            button = this.buttons[ buttonId ];
-            states[ buttonId ] = button ? button.state : 'up' ;
-        }
-        return states;
+        var buttons = this.buttons,
+            states = {};
+        buttonIds = Util.normalizeInputArgs(
+            'Mouse.poll',
+            buttonIds,
+            [ 'left', 'middle', 'right' ]
+        );
+        buttonIds.forEach( function( buttonId ) {
+            var button = buttons[ buttonId ];
+            states[ buttonId ] = button ? button.state : 'up';
+        });
+        return buttonIds.length === 1 ? states[ buttonIds[0] ] : states;
     };
 
     module.exports = Mouse;

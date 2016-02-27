@@ -1,6 +1,6 @@
 (function() {
 
-    "use strict";
+    'use strict';
 
     var _document,
         _log;
@@ -38,7 +38,7 @@
                                 }
                             }
                         } else {
-                            console.log( "No listener for " + eventType );
+                            console.log( 'No listener for ' + eventType );
                         }
                     },
                     querySelector: function() {

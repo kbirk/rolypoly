@@ -1,6 +1,6 @@
 (function() {
 
-    "use strict";
+    'use strict';
 
     var assert = require('assert'),
         CircularArray = require('../src/CircularArray');

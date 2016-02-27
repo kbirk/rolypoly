@@ -1,6 +1,6 @@
 (function () {
 
-    "use strict";
+    'use strict';
 
     var Util = require('./Util'),
         Keys = require('./Keys'),
@@ -23,8 +23,8 @@
         var err = false;
         keyIds.forEach( function( keyId ) {
             if ( !Keys[ keyId ] ) {
-                console.log( "Argument '" + keyId + "' to '" + functionName +
-                    "' is not a recognized event type, command ignored." );
+                console.log( 'Argument `' + keyId + '` to `' + functionName +
+                    '` is not a recognized event type, command ignored.' );
                 err = true;
             }
         });
@@ -336,18 +336,18 @@
         for ( i=0; i<keyIds.length; i++ ) {
             // key is guarenteed to exist if the combo exists
             key = keys[ keyIds[i] ];
-            // a "release" combo can only be triggered if the keys had all
+            // a 'release' combo can only be triggered if the keys had all
             // been down together at one point
-            if ( eventType === "release" && ( !combo.pressed || key.state !== "up" ) ) {
+            if ( eventType === 'release' && ( !combo.pressed || key.state !== 'up' ) ) {
                 return false;
             }
-            // a "press" combo only needs all keys to be down together
-            if ( eventType === "press" && key.state !== "down" ) {
+            // a 'press' combo only needs all keys to be down together
+            if ( eventType === 'press' && key.state !== 'down' ) {
                 return false;
             }
         }
         // combo is successful, flag so it doesn't spam when held
-        if ( eventType === "press" ) {
+        if ( eventType === 'press' ) {
             // flag that all keys have been down
             combo.pressed = true;
         } else {
@@ -375,15 +375,15 @@
         // be tracked, therefore if a press event occurs that is part of a
         // combination it MUST be processed, regardless if there is a
         // callback.
-        if ( eventType === "press" ) {
+        if ( eventType === 'press' ) {
             // process the press callbacks
             if ( key.combos.press ) {
                 // for every combo in the key
                 key.combos.press.forEach( function( press ) {
                     var combo = combos[ press ];
-                    if ( isComboSatisfied( keyboard, combo, "press" ) ) {
+                    if ( isComboSatisfied( keyboard, combo, 'press' ) ) {
                         // all keys in combo satisfy conditions, execute callbacks
-                        Util.executeCallbacks( combo.callbacks, "press", event );
+                        Util.executeCallbacks( combo.callbacks, 'press', event );
                     }
                 });
             }
@@ -395,7 +395,7 @@
                 key.combos.release.forEach( function( release ) {
                     var combo = combos[ release ];
                     // process combo but don't execute any callbacks
-                    isComboSatisfied( keyboard, combo, "press" );
+                    isComboSatisfied( keyboard, combo, 'press' );
                 });
             }
         } else {
@@ -404,9 +404,9 @@
                 // for every combo in the key
                 key.combos.release.forEach( function( release ) {
                     var combo = combos[ release ];
-                    if ( isComboSatisfied( keyboard, combo, "release" ) ) {
+                    if ( isComboSatisfied( keyboard, combo, 'release' ) ) {
                         // all keys in combo satisfy conditions, execute callbacks
-                        Util.executeCallbacks( combo.callbacks, "release", event );
+                        Util.executeCallbacks( combo.callbacks, 'release', event );
                     }
                 });
             }
@@ -452,9 +452,9 @@
             sequenceKey = keyIds[ keyIds.length-1-i ];
             key = history.back( j );
             // ignore shift keys
-            while ( sequenceKey !== "shift" &&
+            while ( sequenceKey !== 'shift' &&
                 key &&
-                key.keyId === "shift" ) {
+                key.keyId === 'shift' ) {
                 j++;
                 key = history.back( j );
             }
@@ -483,7 +483,7 @@
         var sequences = keyboard.sequences,
             history;
         if ( key.sequences && key.sequences[eventType] ) {
-            if ( eventType === "press" ) {
+            if ( eventType === 'press' ) {
                 history = keyboard.pressHistory;
             } else {
                 history = keyboard.releaseHistory;
@@ -526,7 +526,7 @@
      */
     function shiftKeyId( keys, keyId ) {
         var shift = keys[ KeyEnums.SHIFT ];
-        if ( shift && shift.state === "down" ) {
+        if ( shift && shift.state === 'down' ) {
             return ShiftMap[ keyId ] || keyId;
         }
         return keyId;
@@ -551,14 +551,14 @@
             }
             keyId = shiftKeyId( keys, keyId );
             key = keys[ keyId ] = keys[ keyId ] || {};
-            key.state = "down";
+            key.state = 'down';
             keyboard.pressHistory.push({
                 keyId: keyId,
                 timestamp: Date.now()
             });
-            Util.executeCallbacks( key.callbacks, "press", event );
-            checkCombos( keyboard, key, "press", event );
-            checkSequences( keyboard, key, keyId, "press", event );
+            Util.executeCallbacks( key.callbacks, 'press', event );
+            checkCombos( keyboard, key, 'press', event );
+            checkSequences( keyboard, key, keyId, 'press', event );
         };
     }
 
@@ -581,15 +581,15 @@
             // the 'keyup'
             keyId = shiftKeyId( keys, keyId );
             key = keys[ keyId ];
-            if ( key && key.state === "down" ) {
-                key.state = "up";
+            if ( key && key.state === 'down' ) {
+                key.state = 'up';
                 keyboard.releaseHistory.push({
                     keyId: keyId,
                     timestamp: Date.now()
                 });
-                Util.executeCallbacks( key.callbacks, "release", event );
-                checkCombos( keyboard, key, "release", event );
-                checkSequences( keyboard, key, keyId, "release", event );
+                Util.executeCallbacks( key.callbacks, 'release', event );
+                checkCombos( keyboard, key, 'release', event );
+                checkSequences( keyboard, key, keyId, 'release', event );
             }
         };
     }

@@ -1,6 +1,6 @@
 (function() {
 
-    "use strict";
+    'use strict';
 
     var assert = require('assert'),
         TestUtil = require('./TestUtil'),
@@ -28,7 +28,7 @@
 
         it('should take an optional selector as an element', function() {
             TestUtil.mockFakeElement();
-            var mouse = new Mouse( ".fake-element" );
+            var mouse = new Mouse( '.fake-element' );
             assert( mouse.element === global.fakeElement );
             TestUtil.unmockFakeElement();
         });

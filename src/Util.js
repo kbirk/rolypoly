@@ -1,6 +1,6 @@
 (function () {
 
-    "use strict";
+    'use strict';
 
     module.exports = {
 
@@ -16,7 +16,7 @@
             // convert to lowercase
             str = str.toLowerCase();
             // set all whitespace to a single space character
-            return str.replace(/[\s]/g, " ");
+            return str.replace(/[\s]/g, ' ');
         },
 
         /**
@@ -30,7 +30,7 @@
          */
         checkFunctionArg: function( functionName, func ) {
             if ( typeof func !== 'function' ) {
-                console.log( "Argument 'callback' to '"+functionName+"' is not of type 'function', command ignored.");
+                console.log( 'Argument `callback` to `' + functionName + '` is not of type `function`, command ignored.');
                 return true;
             }
             return false;
@@ -54,13 +54,13 @@
             inputs.forEach( function( input ) {
                 if ( typeof input !== 'string' ) {
                     // input is not a string
-                    console.log( "Argument '"+input+"' to '"+functionName+"' is not of type 'string', argument removed." );
+                    console.log( 'Argument `' + input + '` to `' + functionName + '` is not of type `string`, argument removed.' );
                     return;
                 }
                 if ( validInput ) {
                     if ( validInput.indexOf( input ) === -1 ) {
                         // input is not recognized
-                        console.log( "Argument '"+input+"' to '"+functionName+"' is not a recognized input type, argument removed." );
+                        console.log( 'Argument `' + input + '` to `' + functionName + '` is not a recognized input type, argument removed.' );
                         return;
                     }
                 }
@@ -89,7 +89,7 @@
                 if ( eventType !== 'press' &&
                     eventType !== 'release' ) {
                     // event is not recognized
-                    console.log( "Argument '"+eventType+"' to '"+functionName+"' is not a recognized event type, argument removed." );
+                    console.log( 'Argument `' + eventType + '` to `' + functionName + '` is not a recognized event type, argument removed.' );
                 } else {
                     normalizedEvents.push( that.normalizeString( eventType ) );
                 }

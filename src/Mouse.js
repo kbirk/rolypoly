@@ -1,6 +1,6 @@
 (function () {
 
-    "use strict";
+    'use strict';
 
     var Util = require('./Util');
 
@@ -14,9 +14,9 @@
      */
     function getMouseButtonId( event ) {
         switch ( event.button ) {
-            case 0: return "left";
-            case 1: return "middle";
-            case 2: return "right";
+            case 0: return 'left';
+            case 1: return 'middle';
+            case 2: return 'right';
         }
     }
 
@@ -34,8 +34,8 @@
             button = buttons[ buttonId ] = buttons[ buttonId ] || {
                 state: null
             };
-            button.state = "down";
-            Util.executeCallbacks( button.callbacks, "press", event );
+            button.state = 'down';
+            Util.executeCallbacks( button.callbacks, 'press', event );
         };
     }
 
@@ -53,9 +53,9 @@
             // to focus issues ( windows button, printscreen button, etc )
             // we miss the 'keydown' event and only receive
             // the 'keyup'
-            if ( button && button.state === "down" ) {
-                Util.executeCallbacks( button.callbacks, "release", event );
-                button.state = "up";
+            if ( button && button.state === 'down' ) {
+                Util.executeCallbacks( button.callbacks, 'release', event );
+                button.state = 'up';
             }
         };
     }
@@ -79,7 +79,7 @@
                 event.previousClientX = lastPosition.x;
                 event.previousClientY = lastPosition.y;
             }
-            Util.executeCallbacks( mouse.callbacks, "move", event );
+            Util.executeCallbacks( mouse.callbacks, 'move', event );
             lastPosition = {
                 x: event.clientX,
                 y: event.clientY
@@ -94,7 +94,7 @@
      */
     function handleMouseWheel( mouse ) {
         return function( event ) {
-            Util.executeCallbacks( mouse.callbacks, "wheel", event );
+            Util.executeCallbacks( mouse.callbacks, 'wheel', event );
         };
     }
 
@@ -108,7 +108,7 @@
     function Mouse( arg ) {
         this.buttons = {};
         this.mouse = {};
-        if ( typeof arg === "string" ) {
+        if ( typeof arg === 'string' ) {
             this.element = document.querySelector( arg );
         } else {
             this.element = arg || document;
@@ -140,7 +140,7 @@
         var mouse = this.mouse,
             buttons = this.buttons;
         inputs.forEach( function( input ) {
-            if ( input === "move" || input === "wheel" ) {
+            if ( input === 'move' || input === 'wheel' ) {
                 mouse.callbacks = mouse.callbacks || {};
                 mouse.callbacks[ input ] = mouse.callbacks[ input ] || [];
                 mouse.callbacks[ input ].push( callback );
@@ -176,7 +176,7 @@
         var mouse = this.mouse,
             buttons = this.buttons;
         inputs.forEach( function( input ) {
-            if ( input === "move" || input === "wheel" ) {
+            if ( input === 'move' || input === 'wheel' ) {
                 if ( mouse.callbacks && mouse.callbacks[ input ] ) {
                     mouse.callbacks[ input ].splice( mouse.callbacks[ input ].indexOf( callback ) );
                 }

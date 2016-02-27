@@ -1,6 +1,6 @@
 (function () {
 
-    "use strict";
+    'use strict';
 
     var Util = require('./Util');
 
@@ -30,11 +30,11 @@
     function Touch() {
         this.touch = {};
         // generate and attach the button event handlers
-        document.addEventListener( "touchstart", handleTouchAction( this.touch, "start" ), false );
-        document.addEventListener( "touchend", handleTouchAction( this.touch, "end" ), false );
-        document.addEventListener( "touchcancel", handleTouchAction( this.touch, "cancel" ), false );
-        document.addEventListener( "touchleave", handleTouchAction( this.touch, "leave" ), false );
-        document.addEventListener( "touchmove", handleTouchAction( this.touch, "move" ), false );
+        document.addEventListener( 'touchstart', handleTouchAction( this.touch, 'start' ), false );
+        document.addEventListener( 'touchend', handleTouchAction( this.touch, 'end' ), false );
+        document.addEventListener( 'touchcancel', handleTouchAction( this.touch, 'cancel' ), false );
+        document.addEventListener( 'touchleave', handleTouchAction( this.touch, 'leave' ), false );
+        document.addEventListener( 'touchmove', handleTouchAction( this.touch, 'move' ), false );
     }
 
     /**

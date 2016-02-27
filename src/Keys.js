@@ -1,6 +1,6 @@
 (function () {
 
-    "use strict";
+    'use strict';
 
     var KeyMap = require('./KeyMap'),
         ShiftMap = require('./ShiftMap'),
